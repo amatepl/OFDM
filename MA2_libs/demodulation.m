@@ -14,15 +14,68 @@
 %
    
 function bits_rx = demodulation(params,symb_rx)
-    % **** YOUR CODE GOES HERE!!
-    % *** If you feel like don't touch this part but ensure the input data
-    % *** is in the appropriate format ;)
-    
-    
-    
+   
+% INPUTS:
+% - symb_rx : vector of input symbols (variance 1)
+% - Nbps : number of bits per symbol
+% - modulation : 'pam' or 'qam'
+%
+% OUTPUTS:
+% - bit_rx : vector of ouput bits
+
+    Nsymb = size(symb_rx,1); % Number of symbols
+    % Number of bits per symbol
+    Nbps = params.modulation.Nbps;
+    % REAL PART
+    NbpsI = Nbps/2; 
+    symb_rxI = real(symb_rx);
+
+    % Symbol to integer
+    sigmaI = sqrt(sum(([0:2^NbpsI-1]-(2^NbpsI-1)/2).^2)/2^NbpsI); 
+    int_rxI = sigmaI * sqrt(2) * symb_rxI + (2^NbpsI-1)/2;
+
+    % Integer detection
+    int_detI = round(int_rxI);
+    int_detI(int_detI<0) = 0;
+    int_detI(int_detI>2^NbpsI-1) = 2^NbpsI-1;
+
+    % Integer to binary
+    mapp_rxI  = fliplr(de2bi(int_detI));
+
+    % Binary to gray
+    bit_rxI(:,1) = mapp_rxI(:,1);
+    for ii = 2:NbpsI
+        bit_rxI(:,ii) = xor( mapp_rxI(:,ii-1) , mapp_rxI(:,ii) );
+    end
+
+         
+    % IMAGINARY PART
+    NbpsQ = Nbps/2; 
+    symb_rxQ = imag(symb_rx);
+
+    % Symbol to integer
+    sigmaQ = sqrt(sum(([0:2^NbpsQ-1]-(2^NbpsQ-1)/2).^2)/2^NbpsQ); 
+    int_rxQ = sigmaQ * sqrt(2) * symb_rxQ + (2^NbpsQ-1)/2;
+
+    % Integer detection
+    int_detQ = round(int_rxQ);
+    int_detQ(int_detQ<0) = 0;
+    int_detQ(int_detQ>2^NbpsI-1) = 2^NbpsQ-1;
+
+    % Integer to binary
+    mapp_rxQ  = fliplr(de2bi(int_detQ));
+
+    % Binary to gray
+    bit_rxQ(:,1) = mapp_rxQ(:,1);
+    for ii = 2:NbpsQ
+        bit_rxQ(:,ii) = xor( mapp_rxQ(:,ii-1) , mapp_rxQ(:,ii) );
+    end
+        
+    % BIT CONCATENATION
+    bits_rx = reshape([bit_rxI,bit_rxQ]',Nsymb*Nbps,1);
     
     % ---------------------------------------------------------------------
     % 'demapping' Simple mapping of qam symbols to bits
     % IMPORTANT!!: Comment the next line when trying your implementation
-    bits_rx = demapping(symb_rx,params.modulation.Nbps);
+    %bits_rx = demapping(symb_rx,params.modulation.Nbps);
 end
