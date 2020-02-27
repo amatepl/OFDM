@@ -25,16 +25,23 @@
 %  dim(1,Nsymb_qam) <=> dim(N_subcrr,Nsymb_ofdm)
 
 function signal_tx = transmitter(params,symb_tx,Nsymb_ofdm)
-    % **** YOUR CODE GOES HERE!!
     
+    % Serial to parallel converter
     symb_tx_parallel = reshape(symb_tx,params.ofdm.N_subcrr,Nsymb_ofdm);
     
-    nbInactiveSubc = 264; 
-    symb_tx_parallel(1:nbInactiveSubc,:) = 0;
-    symb_tx_parallel(end - nbInactiveSubc +1:end,:) = 0;
+    % Inactive subcarriers removal
+    symb_tx_parallel(1:(params.ofdm.N_active_subcrr-1)/2,:) = 0;
+    symb_tx_parallel(end - (params.ofdm.N_active_subcrr-1)/2 +1:end,:) = 0;
+    symb_tx_parallel(params.ofdm.N_subcrr/2,:) = 0;     % DC
     
+    % IFFT
     symb_tx_parallel = ifft(symb_tx_parallel,[],1);
+    symb_tx_parallel = ifftshift(symb_tx_parallel);
+    
+    % Cyclic prefix addition
     symb_tx_parallel = vertcat(symb_tx_parallel(end-256+1:end,:),symb_tx_parallel);
+    
+    % Parallel to serial converter
     signal_tx = reshape(symb_tx_parallel,1,[]);
     
     % ---------------------------------------------------------------------
