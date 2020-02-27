@@ -22,7 +22,7 @@
 %       symb_rx     : QAM symbols. dim = (N_qam_symb,1)
 %
 
-function symb_rx = receiver(params,signal_rx,Nsymb_ofdm)
+function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
 
     % S/P conversion
     s = reshape(signal_rx,length(signal_rx)/Nsymb_ofdm,Nsymb_ofdm);
