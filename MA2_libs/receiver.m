@@ -23,13 +23,17 @@
 %
 
 function symb_rx = receiver(params,signal_rx,Nsymb_ofdm)
+
     % S/P conversion
     s = reshape(signal_rx,length(signal_rx)/Nsymb_ofdm,Nsymb_ofdm);
+    
     % CP removal
     CP_length=(length(signal_rx)-params.ofdm.N_subcrr*Nsymb_ofdm)/Nsymb_ofdm;
     s=s(CP_length+1:end,:);
+    
     %FFT
     S=fft(s(:,1:2),params.ofdm.N_subcrr);
+    
     % P/S conversion
     symb_rx = reshape(S,params.ofdm.N_subcrr*Nsymb_ofdm,1);
     
