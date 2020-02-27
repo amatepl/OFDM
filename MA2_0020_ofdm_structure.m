@@ -29,7 +29,7 @@ dispConfigFile(params);                 % display the parameters
 
 % --- Local parameters
 SNR = 20;           % SNR in dB
-Nsymb_ofdm = 2;     % number OFDM symbols to transmit
+Nsymb_ofdm = params.ofdm.data_L;     % number OFDM symbols to transmit
 Nbits = Nsymb_ofdm * params.ofdm.N_subcrr * params.modulation.Nbps;
 
 % -------------------------------------------------------------------------
@@ -37,7 +37,7 @@ Nbits = Nsymb_ofdm * params.ofdm.N_subcrr * params.modulation.Nbps;
 % -------------------------------------------------------------------------
 
 % 1. QAM Modulation.
-[bits_tx,Qsymb_tx] = modulation(params,Nbits);
+[bits_tx,Qsymb_tx, Preamble] = modulation(params,Nbits);
 
 % 2. OFDM Transmitter: 
 signal_tx = transmitter(params,Qsymb_tx,Nsymb_ofdm);
@@ -56,7 +56,7 @@ bits_rx = demodulation(params,Qsymb_rx);
 % -------- Displaying results
 % -------------------------------------------------------------------------
 
-bitErrorRate = sum(abs(bits_tx - bits_rx),'all') / length(bits_tx);
+bitErrorRate = sum(abs(bits_tx - bits_rx)) / length(bits_tx);
 disp('$$ Displaying results:');
 disp(['BER:', num2str(bitErrorRate)]);
 
