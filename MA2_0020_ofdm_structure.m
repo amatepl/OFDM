@@ -46,7 +46,7 @@ Nbits = Nsymb_ofdm * params.ofdm.N_subcrr * params.modulation.Nbps;
 signal_rx = channel_propagation(params,signal_tx,SNR);
 
 % 4. OFDM Receiver:
-Qsymb_rx = receiver(params,signal_rx,Nsymb_ofdm);
+Qsymb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble_mode);
 
 % 5. Demodulation:
 bits_rx = demodulation(params,Qsymb_rx);
