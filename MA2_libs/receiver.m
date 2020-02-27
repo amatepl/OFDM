@@ -34,7 +34,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     s=s(params.ofdm.cp_L+1:end,:);
     
     %FFT
-    S=fft(s(:,1:2),params.ofdm.N_subcrr);
+    S=fft(s(:,1:end),params.ofdm.N_subcrr);
 %     S = fftshift(S);
 
     figure, hold on;
