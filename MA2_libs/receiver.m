@@ -29,7 +29,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm)
     CP_length=(length(signal_rx)-2048*Nsymb_ofdm)/Nsymb_ofdm;
     s=s(CP_length+1:end,:);
     %FFT
-    S=fft(s(:,1:2),2048);
+    S=fft(s(:,1:end),2048);
     % P/S conversion
     symb_rx = reshape(S,2048*Nsymb_ofdm,1);
     
