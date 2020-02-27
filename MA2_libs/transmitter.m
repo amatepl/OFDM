@@ -30,16 +30,20 @@ function signal_tx = transmitter(params,symb_tx,Nsymb_ofdm)
     symb_tx_parallel = reshape(symb_tx,params.ofdm.N_subcrr,Nsymb_ofdm);
     
     % Inactive subcarriers removal
-    symb_tx_parallel(1:(params.ofdm.N_active_subcrr-1)/2,:) = 0;
-    symb_tx_parallel(end - (params.ofdm.N_active_subcrr-1)/2 +1:end,:) = 0;
+    symb_tx_parallel(1:(params.ofdm.N_inactive_subcrr-1)/2,:) = 0;
+    symb_tx_parallel(end - (params.ofdm.N_inactive_subcrr-1)/2 +1:end,:) = 0;
     symb_tx_parallel(params.ofdm.N_subcrr/2,:) = 0;     % DC
+    
+    figure, hold on;
+    plot(abs(symb_tx_parallel));
+    title('symb_tx');
     
     % IFFT
     symb_tx_parallel = ifft(symb_tx_parallel,[],1);
     symb_tx_parallel = ifftshift(symb_tx_parallel);
     
     % Cyclic prefix addition
-    symb_tx_parallel = vertcat(symb_tx_parallel(end-256+1:end,:),symb_tx_parallel);
+    symb_tx_parallel = vertcat(symb_tx_parallel(end-params.ofdm.cp_L+1:end,:),symb_tx_parallel);
     
     % Parallel to serial converter
     signal_tx = reshape(symb_tx_parallel,1,[]);
