@@ -15,7 +15,7 @@
 %                     QAM constellation. dim=(N_qam_symb,1)
 %
    
-function [bits,Qam_symb] = modulation(params,Nbits)
+function [bits,Qam_symb, Preamble] = modulation(params,Nbits)
     % Creation of a random binary bit vector
     
     %Preamble
