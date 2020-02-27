@@ -29,6 +29,10 @@ function signal_tx = transmitter(params,symb_tx,Nsymb_ofdm)
     
     symb_tx_parallel = reshape(symb_tx,params.ofdm.N_subcrr,Nsymb_ofdm);
     
+    nbInactiveSubc = 264; 
+    symb_tx_parallel(1:nbInactiveSubc,:) = 0;
+    symb_tx_parallel(end - nbInactiveSubc +1:end,:) = 0;
+    
     symb_tx_parallel = ifft(symb_tx_parallel,[],1);
     symb_tx_parallel = vertcat(symb_tx_parallel(end-256+1:end,:),symb_tx_parallel);
     signal_tx = reshape(symb_tx_parallel,1,[]);
