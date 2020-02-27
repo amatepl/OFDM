@@ -3,9 +3,9 @@
 %
 % ToDo: 
 %       - STO, CFO estimation and correction.
-%       - Implement S/P converter
-%       - Cyclic prefix Removal.
-%       - FFT
+%       - Implement S/P converter                V
+%       - Cyclic prefix Removal.                 V
+%       - FFT                                    V
 %       - Channel estimation
 %       - Channel Equalization
 %       - CFO tracking
@@ -23,8 +23,15 @@
 %
 
 function symb_rx = receiver(params,signal_rx,Nsymb_ofdm)
-    % **** YOUR CODE GOES HERE!!
-    
+    % S/P conversion
+    s = reshape(signal_rx,length(signal_rx)/Nsymb_ofdm,Nsymb_ofdm);
+    % CP removal
+    CP_length=(length(signal_rx)-2048*Nsymb_ofdm)/Nsymb_ofdm;
+    s=s(CP_length+1:end,:);
+    %FFT
+    S=fft(s(:,1:2),2048);
+    % P/S conversion
+    symb_rx = reshape(S,2048*Nsymb_ofdm,1);
     
     
     
@@ -32,7 +39,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm)
     % 'simple_ofdm_Tx': Implements a simple ofdm transmitter: S/P, IFFT, CP
     % P/S. It doesn't consider active/inactive subcarriers.
     % IMPORTANT!!: Comment the next line when trying your implementation
-    symb_rx = simple_ofdm_Rx(params,signal_rx,Nsymb_ofdm);
+    % symb_rx = simple_ofdm_Rx(params,signal_rx,Nsymb_ofdm);
 end
 
 
