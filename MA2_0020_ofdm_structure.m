@@ -40,7 +40,7 @@ Nbits = Nsymb_ofdm * params.ofdm.N_subcrr * params.modulation.Nbps;
 [bits_tx,Qsymb_tx, Preamble] = modulation(params,Nbits);
 
 % 2. OFDM Transmitter: 
-signal_tx = transmitter(params,Qsymb_tx,Nsymb_ofdm);
+[signal_tx, Preamble_mod] = transmitter(params,Qsymb_tx,Nsymb_ofdm);
 
 % 3. Channel propagation: 
 signal_rx = channel_propagation(params,signal_tx,SNR);
