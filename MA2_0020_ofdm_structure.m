@@ -56,7 +56,7 @@ bits_rx = demodulation(params,Qsymb_rx);
 % -------- Displaying results
 % -------------------------------------------------------------------------
 
-bitErrorRate = sum(abs(bits_tx - bits_rx)) / length(bits_tx);
+bitErrorRate = sum(abs(bits_tx - bits_rx),'all') / length(bits_tx);
 disp('$$ Displaying results:');
 disp(['BER:', num2str(bitErrorRate)]);
 
