@@ -29,9 +29,9 @@ dispConfigFile(params);                 % display the parameters
 
 % --- Local parameters
 SNR = 20;           % SNR in dB
-
-Nsymb_ofdm = 2;     % number OFDM symbols to transmit
-% Nsymb_ofdm = params.ofdm.data_L;     % number OFDM symbols to transmit
+STO = 30;
+% Nsymb_ofdm = 2;     % number OFDM symbols to transmit
+Nsymb_ofdm = params.ofdm.data_L;     % number OFDM symbols to transmit
 Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr) * params.modulation.Nbps;
 
 
@@ -47,7 +47,9 @@ Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr) * pa
 [signal_tx, Preamble_mod] = transmitter(params,Qsymb_tx,Nsymb_ofdm);
 
 % 3. Channel propagation: 
-signal_rx = channel_propagation(params,signal_tx,SNR);
+signal_rx = channel_propagation(params,signal_tx,SNR,STO);
+
+[STO_estimated, ~] = estimationSTOCFO(params,signal_rx);
 
 % 4. OFDM Receiver:
 Qsymb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble_mod);
