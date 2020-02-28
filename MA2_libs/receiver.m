@@ -37,6 +37,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
 
     S=fft(s(:,1:end),params.ofdm.N_subcrr);
     
+
     % Inactive subcarriers removal
     S = S((params.ofdm.N_inactive_subcrr-1)/2 + 1:end - (params.ofdm.N_inactive_subcrr-1)/2 ,:);
     N_active_subcrr = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
