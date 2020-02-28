@@ -19,11 +19,11 @@ function [bits,Qam_symb, Preamble] = modulation(params,Nbits)
     % Creation of a random binary bit vector
     
     %Preamble
-    Preamble= randi([0 1], 2*params.ofdm.N_active_subcrr * params.modulation.Nbps,1);
-    bits(1:2*params.ofdm.N_active_subcrr * params.modulation.Nbps,1)=Preamble;
+    Preamble= randi([0 1], params.ofdm.N_subcrr * params.modulation.Nbps,1);
+    bits(1:params.ofdm.N_subcrr * params.modulation.Nbps,1)=Preamble;
+    bits(params.ofdm.N_subcrr * params.modulation.Nbps+1:2*params.ofdm.N_subcrr * params.modulation.Nbps,1)=Preamble;
     
-    bits(2*params.ofdm.N_active_subcrr * params.modulation.Nbps+1:Nbits)= randi([0 1],...
-        Nbits-2*params.ofdm.N_active_subcrr * params.modulation.Nbps,1);
+    bits(2*params.ofdm.N_subcrr * params.modulation.Nbps+1:Nbits)= randi([0 1], Nbits-2*params.ofdm.N_subcrr * params.modulation.Nbps,1);
     
 %     bits = randi([0 1],Nbits,1);
     % Number of bits per symbol
