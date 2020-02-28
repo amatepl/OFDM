@@ -55,7 +55,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     end
     
     % P/S conversion
-    symb_rx = reshape(S,params.ofdm.N_subcrr*Nsymb_ofdm,1);
+    symb_rx = reshape(S2,params.ofdm.N_subcrr*Nsymb_ofdm,1);
     
     
     
