@@ -37,8 +37,9 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     lambda=diag(Preamble(:,2));
     H= S(:,2)\lambda;   
     h=ifft(H);
+    stem(h);
     h(1,257:end)=0;
-    hcirc = toeplitz(h, [h(1), zeros(1,length(h)-1)]);
+    hcirc = toeplitz(h,h); %Circulant matrix in time domain
     %Channel equalization: match filter
     
 
