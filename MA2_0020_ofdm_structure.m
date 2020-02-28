@@ -29,24 +29,28 @@ dispConfigFile(params);                 % display the parameters
 
 % --- Local parameters
 SNR = 20;           % SNR in dB
+
 Nsymb_ofdm = 2;     % number OFDM symbols to transmit
+% Nsymb_ofdm = params.ofdm.data_L;     % number OFDM symbols to transmit
 Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr) * params.modulation.Nbps;
+
+
 
 % -------------------------------------------------------------------------
 % ------------------- OFDM Communication Chain ----------------------------
 % -------------------------------------------------------------------------
 
 % 1. QAM Modulation.
-[bits_tx,Qsymb_tx] = modulation(params,Nbits);
+[bits_tx,Qsymb_tx, Preamble] = modulation(params,Nbits);
 
 % 2. OFDM Transmitter: 
-signal_tx = transmitter(params,Qsymb_tx,Nsymb_ofdm);
+[signal_tx, Preamble_mod] = transmitter(params,Qsymb_tx,Nsymb_ofdm);
 
 % 3. Channel propagation: 
 signal_rx = channel_propagation(params,signal_tx,SNR);
 
 % 4. OFDM Receiver:
-Qsymb_rx = receiver(params,signal_rx,Nsymb_ofdm);
+Qsymb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble_mod);
 
 % 5. Demodulation:
 bits_rx = demodulation(params,Qsymb_rx);

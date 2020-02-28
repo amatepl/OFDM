@@ -24,7 +24,7 @@
 %                       3 6 9
 %  dim(1,Nsymb_qam) <=> dim(N_subcrr,Nsymb_ofdm)
 
-function signal_tx = transmitter(params,symb_tx,Nsymb_ofdm)
+function [signal_tx, Preamble] = transmitter(params,symb_tx,Nsymb_ofdm)
     
     % Serial to parallel converter
 %     symb_tx_parallel = reshape(symb_tx,params.ofdm.N_subcrr,Nsymb_ofdm);
@@ -43,6 +43,10 @@ function signal_tx = transmitter(params,symb_tx,Nsymb_ofdm)
     symb_tx_parallel = vertcat(zeros((params.ofdm.N_inactive_subcrr-1)/2,Nsymb_ofdm),...
                                symb_tx_parallel,...
                                zeros((params.ofdm.N_inactive_subcrr-1)/2,Nsymb_ofdm));
+
+    
+    Preamble = symb_tx_parallel(:,1:2);
+    
     
     % IFFT
     symb_tx_parallel = ifft(symb_tx_parallel,[],1);
