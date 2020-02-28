@@ -20,7 +20,8 @@ function [bits,Qam_symb, Preamble] = modulation(params,Nbits)
     
     %Preamble
     Preamble= randi([0 1], 2*params.ofdm.N_subcrr * params.modulation.Nbps,1);
-    bits(1:2*params.ofdm.N_subcrr * params.modulation.Nbps,1)=Preamble;
+    bits(1:params.ofdm.N_subcrr * params.modulation.Nbps,1)=Preamble;
+    bits(params.ofdm.N_subcrr * params.modulation.Nbps+1:2*params.ofdm.N_subcrr * params.modulation.Nbps,1)=Preamble;
     
     bits(2*params.ofdm.N_subcrr * params.modulation.Nbps+1:Nbits)= randi([0 1], Nbits-2*params.ofdm.N_subcrr * params.modulation.Nbps,1);
     
