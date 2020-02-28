@@ -29,8 +29,12 @@ dispConfigFile(params);                 % display the parameters
 
 % --- Local parameters
 SNR = 20;           % SNR in dB
-Nsymb_ofdm = 3;%params.ofdm.data_L;     % number OFDM symbols to transmit
-Nbits = Nsymb_ofdm * params.ofdm.N_subcrr * params.modulation.Nbps;
+
+Nsymb_ofdm = 2;     % number OFDM symbols to transmit
+% Nsymb_ofdm = params.ofdm.data_L;     % number OFDM symbols to transmit
+Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr) * params.modulation.Nbps;
+
+
 
 % -------------------------------------------------------------------------
 % ------------------- OFDM Communication Chain ----------------------------
@@ -65,4 +69,3 @@ subplot(1,2,1); plot(real(Qsymb_tx),imag(Qsymb_tx),'rx');
 title('Tx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
 subplot(1,2,2); plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
 title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
-

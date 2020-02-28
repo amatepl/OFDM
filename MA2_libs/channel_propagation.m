@@ -31,6 +31,7 @@ function signal_rx = channel_propagation(params,signal_tx,SNR)
     signal_rx = impulse_matrix*signal_tx_col;
     signal_rx = reshape(signal_rx.',[],size(signal_rx,1)*size(signal_rx,2));
     
+
     transmitted_energy = norm(signal_tx(:))^2;           % energy of the signal
     noise_energy = transmitted_energy/(10^(SNR/10));     % energy of noise
     noise_var = noise_energy/(length(signal_tx(:))-1);   % variance of noise to be added

@@ -34,30 +34,33 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     s=s(params.ofdm.cp_L+1:end,:);
     
     %FFT
-    S=fft(s(:,1:end),params.ofdm.N_subcrr);
-%     S = fftshift(S);
 
-    figure, hold on;
-    plot(abs(S));
+    S=fft(s(:,1:end),params.ofdm.N_subcrr);
+    
+
+    % Inactive subcarriers removal
+    S = S((params.ofdm.N_inactive_subcrr-1)/2 + 1:end - (params.ofdm.N_inactive_subcrr-1)/2 ,:);
+    N_active_subcrr = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
+    S = vertcat(S(1:(N_active_subcrr-1)/2,:),S(end - (N_active_subcrr-1)/2:end,:));  
     
     %Channel estimation
-    H= Preamble(:,1)./Preamble(:,2);
-    
-    %Equalization: inversion
-    S2=zeros(params.ofdm.N_subcrr,Nsymb_ofdm);
-    for i=1:1:Nsymb_ofdm
-        S2(:,i)=S(:,i)./H;
-        for j=1:params.ofdm.N_subcrr
-            if(isnan(S2(j,i)))
-                S2(j,i)=0;
-            end
-        end   
-    end
+%     H= Preamble(:,1)./Preamble(:,2);
+%     
+%     %Equalization: inversion
+% %     S2=zeros(params.ofdm.N_subcrr,Nsymb_ofdm);
+%     S2=zeros(size(S));
+%     for i=1:1:Nsymb_ofdm
+%         S2(:,i)=S(:,i)./H;
+%         for j=1:params.ofdm.N_active_subcrr
+%             if(isnan(S2(j,i)))
+%                 S2(j,i)=0;
+%             end
+%         end   
+%     end
     
     % P/S conversion
-    symb_rx = reshape(S,params.ofdm.N_subcrr*Nsymb_ofdm,1);
-    
-    
+    %symb_rx = reshape(S,params.ofdm.N_subcrr*Nsymb_ofdm,1);
+    symb_rx = reshape(S,[],1);
     
     % ---------------------------------------------------------------------
     % 'simple_ofdm_Tx': Implements a simple ofdm transmitter: S/P, IFFT, CP
