@@ -43,16 +43,6 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     %Channel estimation
     H= S(:,1)./S(:,2);
     
-    %Equalization: inversion
-    S2=zeros(params.ofdm.N_subcrr,Nsymb_ofdm);
-    for i=1:1:Nsymb_ofdm
-        S2(:,i)=S(:,i)./H;
-        for j=1:params.ofdm.N_subcrr
-            if(isnan(S2(j,i)))
-                S2(j,i)=0;
-            end
-        end   
-    end
     
     % P/S conversion
     symb_rx = reshape(S2,params.ofdm.N_subcrr*Nsymb_ofdm,1);
