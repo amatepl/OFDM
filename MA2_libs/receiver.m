@@ -28,14 +28,18 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     s = reshape(signal_rx,length(signal_rx)/Nsymb_ofdm,Nsymb_ofdm);
     
     % CP removal
-%     CP_length=(length(signal_rx)-params.ofdm.N_subcrr*Nsymb_ofdm)/Nsymb_ofdm;
-%     s=s(CP_length+1:end,:);
-
     s=s(params.ofdm.cp_L+1:end,:);
     
     %FFT
-
     S=fft(s(:,1:end),params.ofdm.N_subcrr);
+    
+    %Channel estimation
+    lambda=diag(Preamble(:,2));
+    H= S(:,2)\lambda;   
+    h=ifft(H);
+    h(1,257:end)=0;
+    hcirc = toeplitz(h, [h(1), zeros(1,length(h)-1)]);
+    %Channel equalization: match filter
     
 
     % Inactive subcarriers removal
