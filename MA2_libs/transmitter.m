@@ -27,20 +27,26 @@
 function signal_tx = transmitter(params,symb_tx,Nsymb_ofdm)
     
     % Serial to parallel converter
-    symb_tx_parallel = reshape(symb_tx,params.ofdm.N_subcrr,Nsymb_ofdm);
+%     symb_tx_parallel = reshape(symb_tx,params.ofdm.N_subcrr,Nsymb_ofdm);
+    symb_tx_parallel = reshape(symb_tx,[],Nsymb_ofdm);
     
+    N_active_subcrr = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
     % Inactive subcarriers removal
-    symb_tx_parallel(1:(params.ofdm.N_inactive_subcrr-1)/2,:) = 0;
-    symb_tx_parallel(end - (params.ofdm.N_inactive_subcrr-1)/2 +1:end,:) = 0;
-    symb_tx_parallel(params.ofdm.N_subcrr/2,:) = 0;     % DC
-    
-    figure, hold on;
-    plot(abs(symb_tx_parallel));
-    title('symb_tx');
+%     symb_tx_parallel(1:(params.ofdm.N_inactive_subcrr-1)/2,:) = 0;
+%     symb_tx_parallel(end - (params.ofdm.N_inactive_subcrr-1)/2 +1:end,:) = 0;
+%     symb_tx_parallel(params.ofdm.N_subcrr/2,:) = 0;     % DC
+
+    symb_tx_parallel = vertcat(symb_tx_parallel(1:(N_active_subcrr-1)/2,:),...
+                                zeros(1,Nsymb_ofdm),...
+                                symb_tx_parallel(end - (N_active_subcrr-1)/2:end,:));
+
+    symb_tx_parallel = vertcat(zeros((params.ofdm.N_inactive_subcrr-1)/2,Nsymb_ofdm),...
+                               symb_tx_parallel,...
+                               zeros((params.ofdm.N_inactive_subcrr-1)/2,Nsymb_ofdm));
     
     % IFFT
     symb_tx_parallel = ifft(symb_tx_parallel,[],1);
-    symb_tx_parallel = ifftshift(symb_tx_parallel);
+   % symb_tx_parallel = ifftshift(symb_tx_parallel);
     
     % Cyclic prefix addition
     symb_tx_parallel = vertcat(symb_tx_parallel(end-params.ofdm.cp_L+1:end,:),symb_tx_parallel);

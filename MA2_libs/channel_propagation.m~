@@ -22,7 +22,7 @@ function signal_rx = channel_propagation(params,signal_tx,SNR)
     noiseVar = noiseEner/(length(signal_tx(:)-1));     % variance of noise to be added
     noiseStd = sqrt(noiseVar);                   % std. deviation of noise to be added
     noise = noiseStd/2*(randn(size(signal_tx))+1i*randn(size(signal_tx)));           % noise
-    signal_rx = signal_tx+noise; 
+    %signal_rx = signal_tx+noise; 
     
     
     % ---------------------------------------------------------------------

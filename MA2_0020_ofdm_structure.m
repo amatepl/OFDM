@@ -30,7 +30,7 @@ dispConfigFile(params);                 % display the parameters
 % --- Local parameters
 SNR = 20;           % SNR in dB
 Nsymb_ofdm = 2;     % number OFDM symbols to transmit
-Nbits = Nsymb_ofdm * params.ofdm.N_subcrr * params.modulation.Nbps;
+Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr) * params.modulation.Nbps;
 
 % -------------------------------------------------------------------------
 % ------------------- OFDM Communication Chain ----------------------------

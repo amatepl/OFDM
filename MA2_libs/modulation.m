@@ -68,5 +68,5 @@ function [bits,Qam_symb] = modulation(params,Nbits)
     % 'simple_modulation' just generates a certain amount of bits without 
     % any format and maps them into QAM symbols.
     % IMPORTANT!!: Comment the next line when trying your implementation
-    % [bits,Qam_symb] = simple_modulation(params,Nbits);
+     %[bits,Qam_symb] = simple_modulation(params,Nbits);
 end
