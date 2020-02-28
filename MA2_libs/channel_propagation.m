@@ -14,7 +14,7 @@
 %       signal_rx   : received signal at the output of the channel. 
 %                     dim = (1,Nsamples)
 
-function signal_rx = channel_propagation(params,signal_tx,SNR)
+function signal_rx = channel_propagation(params,signal_tx,SNR,STO)
     % **** YOUR CODE GOES HERE!!
     % Multipath component:
     Lcp = params.ofdm.cp_L;
@@ -29,8 +29,8 @@ function signal_rx = channel_propagation(params,signal_tx,SNR)
     % phi = 0;
     % map it to the range [0,2*pi]
     phi = mod(phi,2*pi);
-    impulse_response(randi([1,Lcp+Q])) = a*exp(1i*phi);
-    %impulse_response(2) = 0.2;
+    %impulse_response(randi([1,Lcp+Q])) = a*exp(1i*phi);
+    impulse_response(2) = a*exp(1i*phi);
     impulse_matrix = convolutionMatrix(impulse_response);
     signal_rx = impulse_matrix*signal_tx_col;
     signal_rx = reshape(signal_rx,size(signal_rx,1)*size(signal_rx,2),1).';
@@ -41,9 +41,12 @@ function signal_rx = channel_propagation(params,signal_tx,SNR)
     noise_var = noise_energy/(length(signal_tx(:))-1);   % variance of noise to be added
     noise_std = sqrt(noise_var/2);                       % std. deviation of noise to be added
     noise = noise_std*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));      % noise
+    signal_rx = [zeros(1,STO), signal_rx(1:end-STO)];
     signal_rx = signal_rx+noise.'; 
     
     % Matched filter + MMSE equalizer
+%     impulse_response = [zeros(STO,1); impulse_response(1:end-STO)];
+%     impulse_matrix = convolutionMatrix(impulse_response);
 %     Nb = 2 * params.ofdm.N_subcrr * params.modulation.Nbps;
 %     No = noise_energy/(Nb*2);
 %     signal_rx_col = reshape(signal_rx,Lcp+Q,[]);
