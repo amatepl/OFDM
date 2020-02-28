@@ -41,7 +41,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     plot(abs(S));
     
     %Channel estimation
-    H= Preamble(:,1)./Preamble(:,2);
+    H= S(:,1)./S(:,2);
     
     %Equalization: inversion
     S2=zeros(params.ofdm.N_subcrr,Nsymb_ofdm);
