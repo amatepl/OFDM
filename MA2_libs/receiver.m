@@ -24,17 +24,7 @@
 
 function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
 
-    % Frequency offset (CFO)
-    
-    % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-    delta_w = params.ofdm.f_dc*10*0.0001;
-    T = params.ofdm.B;
-    n = 1:1:size(signal_rx,2);
-    phi = exp(1i*delta_w*T*n);
-    signal_rx = signal_rx.*phi;
-    
-    % SFO & CFO Estimation & Correction
-    
+   
     
 
     % S/P conversion

@@ -14,7 +14,7 @@
 %       signal_rx   : received signal at the output of the channel. 
 %                     dim = (1,Nsamples)
 
-function signal_rx = channel_propagation(params,signal_tx,SNR,STO)
+function signal_rx = channel_propagation(params,signal_tx,SNR,STO,CFO)
     % **** YOUR CODE GOES HERE!!
     % Multipath component:
     Lcp = params.ofdm.cp_L;
@@ -35,13 +35,26 @@ function signal_rx = channel_propagation(params,signal_tx,SNR,STO)
     signal_rx = impulse_matrix*signal_tx_col;
     signal_rx = reshape(signal_rx,size(signal_rx,1)*size(signal_rx,2),1).';
     
-
+    % Noise
     transmitted_energy = norm(signal_tx(:))^2;           % energy of the signal
     noise_energy = transmitted_energy/(10^(SNR/10));     % energy of noise
     noise_var = noise_energy/(length(signal_tx(:))-1);   % variance of noise to be added
     noise_std = sqrt(noise_var/2);                       % std. deviation of noise to be added
     noise = noise_std*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));      % noise
+    
+    % STO
+    signal_rx = signal_tx;
     signal_rx = [zeros(1,STO), signal_rx(1:end-STO)];
+    
+    % Frequency offset (CFO)
+    
+    % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
+    delta_w = params.ofdm.f_dc*CFO/(2*pi);
+    T = 1/params.ofdm.B;
+    n = 1:1:size(signal_rx,2);
+    phi = exp(1i*delta_w*T*n);
+    signal_rx = signal_rx.*phi;
+    
     signal_rx = signal_rx+noise.'; 
     
     % Matched filter + MMSE equalizer
