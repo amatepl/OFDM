@@ -31,14 +31,19 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     s = reshape(signal_rx,length(signal_rx)/Nsymb_ofdm,Nsymb_ofdm);
     
     % CP removal
-%     CP_length=(length(signal_rx)-params.ofdm.N_subcrr*Nsymb_ofdm)/Nsymb_ofdm;
-%     s=s(CP_length+1:end,:);
-
     s=s(params.ofdm.cp_L+1:end,:);
     
     %FFT
-
     S=fft(s(:,1:end),params.ofdm.N_subcrr);
+    
+    %Channel estimation
+    lambda=diag(Preamble(:,2));
+    H= S(:,2)\lambda;   
+    h=ifft(H);
+    stem(h);
+    h(1,257:end)=0;
+    hcirc = toeplitz(h,h); %Circulant matrix in time domain
+    %Channel equalization: match filter
     
 
     % Inactive subcarriers removal
@@ -46,21 +51,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     N_active_subcrr = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
     S = vertcat(S(1:(N_active_subcrr-1)/2,:),S(end - (N_active_subcrr-1)/2:end,:));  
     
-    %Channel estimation
-%     H= Preamble(:,1)./Preamble(:,2);
-%     
-%     %Equalization: inversion
-% %     S2=zeros(params.ofdm.N_subcrr,Nsymb_ofdm);
-%     S2=zeros(size(S));
-%     for i=1:1:Nsymb_ofdm
-%         S2(:,i)=S(:,i)./H;
-%         for j=1:params.ofdm.N_active_subcrr
-%             if(isnan(S2(j,i)))
-%                 S2(j,i)=0;
-%             end
-%         end   
-%     end
-    
+  
     % P/S conversion
     %symb_rx = reshape(S,params.ofdm.N_subcrr*Nsymb_ofdm,1);
     symb_rx = reshape(S,[],1);
