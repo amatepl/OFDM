@@ -29,6 +29,7 @@ function [signal_tx, Preamble] = transmitter(params,symb_tx,Nsymb_ofdm)
     % Serial to parallel converter
 %     symb_tx_parallel = reshape(symb_tx,params.ofdm.N_subcrr,Nsymb_ofdm);
     symb_tx_parallel = reshape(symb_tx,[],Nsymb_ofdm);
+    Preamble = symb_tx_parallel(:,1:2);
     
     N_active_subcrr = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
     % Inactive subcarriers removal
@@ -48,7 +49,7 @@ function [signal_tx, Preamble] = transmitter(params,symb_tx,Nsymb_ofdm)
 
     
     symb_tx_parallel(:,2) = symb_tx_parallel(:,1);
-    Preamble = symb_tx_parallel(:,1:2);
+    
     
     
     % IFFT
