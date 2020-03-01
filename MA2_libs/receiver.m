@@ -37,12 +37,12 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     S=fft(s(:,1:end),params.ofdm.N_subcrr);
     
     %Channel estimation
-    lambda=diag(Preamble(:,2));
-    H= S(:,2)\lambda;   
+    lambda=diag(Preamble(:,2));    
+    H= lambda\S(:,2);  
     h=ifft(H);
-    stem(h);
     h(1,257:end)=0;
-    hcirc = toeplitz(h,h); %Circulant matrix in time domain
+    H=fft(h);
+    Hcirc = toeplitz(H, [H(1,1); zeros(N_active_subcrr-1,1)]);
     %Channel equalization: match filter
     
 
