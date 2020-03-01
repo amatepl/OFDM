@@ -50,10 +50,11 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     H=fft(h);
     %Channel equalization
     Hcirc = toeplitz(H, [H(1,1); zeros(N_active_subcrr-1,1)]);
-    Hm=zeros(N_active_subcrr, Nsymb_ofdm);
-    for i=1:1:Nsymb_ofdm
-    Hm(:,i)=H;
-    end
+    Hm = ones(N_active_subcrr, Nsymb_ofdm).*H;
+%     Hm=zeros(N_active_subcrr, Nsymb_ofdm);
+%     for i=1:1:Nsymb_ofdm
+%     Hm(:,i)=H;
+%     end
     S=S./Hm;
   
     
