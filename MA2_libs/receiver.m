@@ -36,6 +36,12 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     %FFT
     S=fft(s(:,1:end),params.ofdm.N_subcrr);
     
+    
+    % Inactive subcarriers removal
+    S = S((params.ofdm.N_inactive_subcrr-1)/2 + 1:end - (params.ofdm.N_inactive_subcrr-1)/2 ,:);
+    N_active_subcrr = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
+    S = vertcat(S(1:(N_active_subcrr-1)/2,:),S(end - (N_active_subcrr-1)/2:end,:));  
+    
     %Channel estimation
     lambda=diag(Preamble(:,2));    
     H= lambda\S(:,2);  
@@ -49,12 +55,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     Hm(:,i)=H;
     end
     S=S./Hm;
-    
-
-    % Inactive subcarriers removal
-    S = S((params.ofdm.N_inactive_subcrr-1)/2 + 1:end - (params.ofdm.N_inactive_subcrr-1)/2 ,:);
-    N_active_subcrr = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
-    S = vertcat(S(1:(N_active_subcrr-1)/2,:),S(end - (N_active_subcrr-1)/2:end,:));  
+  
     
   
     % P/S conversion
