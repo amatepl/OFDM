@@ -32,23 +32,17 @@ function [signal_tx] = transmitter(params, symb_pre,symb_tx, symb_pilot, Nsymb_o
     symb_tx = reshape(symb_tx,[],Nsymb_ofdm);
     
     % Add pilots
-    symb_tx_1 = symb_tx(1:size(symb_tx)/2,:);
-    symb_tx_2 = symb_tx(size(symb_tx)/2+1:end,:);
+    symb_tx_parallel_1 = symb_tx_parallel(1:size(symb_tx_parallel)/2,:);
+    symb_tx_parallel_2 = symb_tx_parallel(size(symb_tx_parallel)/2+1:end,:);
     
-    symb_tx_1 = reshape(symb_tx_1,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
-    symb_tx_2 = reshape(symb_tx_2,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
+    symb_tx_parallel_1 = pad(reshape(symb_tx_parallel_1,[],Nsymb_ofdm,params.ofdm.N_pilots),[1 0 0],'pre');
+    symb_tx_parallel_2 = pad(reshape(symb_tx_parallel_2,[],Nsymb_ofdm,params.ofdm.N_pilots),[1 0 0],'post');
     
-    symb_tx_1 = padarray(symb_tx_1,[1 0 0],symb_pilot,'pre');
-    symb_tx_2 = padarray(symb_tx_2,[1 0 0],symb_pilot,'post');
-    
-    symb_tx_1 = reshape(symb_tx_1,[],Nsymb_ofdm);
-    symb_tx_2 = reshape(symb_tx_2,[],Nsymb_ofdm);
-    
-    symb_tx = vertcat(symb_tx_1,symb_tx_2);
+    sym
 
-    symb_pre = reshape(symb_pre,[],2);
-    symb_tx_parallel = horzcat(symb_pre,symb_tx);
-%     symb_tx_parallel = reshape(symb_tx,[],Nsymb_ofdm);
+
+    symb_tx = vertcat(symb_pre,symb_tx);
+    symb_tx_parallel = reshape(symb_tx,[],Nsymb_ofdm);
     
     
     
@@ -67,19 +61,19 @@ function [signal_tx] = transmitter(params, symb_pre,symb_tx, symb_pilot, Nsymb_o
 % P ≥ 0 is an integer number
     % pilotQAM
 
-%     continuesLocationPilots = padarray([1 0 0 0 0 0 0 0 0 0 0],[0 params.ofdm.N_active_subcrr - 11],'circ','post');
-%     continuesLocationPilots = continuesLocationPilots * symb_pilot;
+    continuesLocationPilots = padarray([1 0 0 0 0 0 0 0 0 0 0],[0 params.ofdm.N_active_subcrr - 11],'circ','post');
+    continuesLocationPilots = continuesLocationPilots * symb_pilot;
     
    
     
 
     symb_tx_parallel = vertcat(symb_tx_parallel(1:(N_active_subcrr)/2,:),...
-                                zeros(1,Nsymb_ofdm+2),...
+                                zeros(1,Nsymb_ofdm),...
                                 symb_tx_parallel(end - (N_active_subcrr)/2 +1:end,:));
 
-    symb_tx_parallel = vertcat(zeros((params.ofdm.N_inactive_subcrr)/2 -1,Nsymb_ofdm+2),...
+    symb_tx_parallel = vertcat(zeros((params.ofdm.N_inactive_subcrr)/2 -1,Nsymb_ofdm),...
                                symb_tx_parallel,...
-                               zeros((params.ofdm.N_inactive_subcrr)/2,Nsymb_ofdm+2));
+                               zeros((params.ofdm.N_inactive_subcrr)/2,Nsymb_ofdm));
 
     
     symb_tx_parallel(:,2) = symb_tx_parallel(:,1);

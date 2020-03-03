@@ -22,7 +22,7 @@
 %       symb_rx     : QAM symbols. dim = (N_qam_symb,1)
 %
 
-function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
+function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
 
    
     
@@ -100,10 +100,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
     H_pilots = vertcat(H_pilots_1,H_pilots_2);
     
-    phi = conj(pilots_rx).*(H_pilots.*ones(size(pilots_rx)).*pilot);
-    
-    phi = -angle(sum(phi,'all'));
-    
+    phi = conj(pilots_rx).*(H_pilots.*ones());
   
     % P/S conversion
     %symb_rx = reshape(S,params.ofdm.N_subcrr*Nsymb_ofdm,1);
@@ -113,7 +110,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
     S = reshape(S(:,1:2),[],1);
     
-    symb_rx = vertcat(S,S_pilots).*exp(1i*phi);
+    symb_rx = vertcat(S,S_pilots);
     
     
     % ---------------------------------------------------------------------

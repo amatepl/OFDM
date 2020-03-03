@@ -20,7 +20,7 @@
 %                  params.extra.newVarName = NewVarValue
 % -------------------------------------------------------------------------
 
-clear; close all; clc;
+clear ; close all; clc;
 addpath(genpath('MA2_libs'));           % add libraries
 
 cfg = load('MA2_lab_parameters.mat');   % load configFile
@@ -28,13 +28,13 @@ params = cfg.params;                    % get the set of parameters
 dispConfigFile(params);                 % display the parameters
 
 % --- Local parameters
-SNR = 20;           % SNR in dB
+SNR = 10;           % SNR in dB
 STO = 30;
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
 CFO = 10e-6;
 % Nsymb_ofdm = 2;     % number OFDM symbols to transmit
 Nsymb_ofdm = params.ofdm.data_L;     % number OFDM symbols to transmit
-Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr) * params.modulation.Nbps;
+Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr- params.ofdm.N_pilots) * params.modulation.Nbps;
 
 
 
@@ -43,10 +43,19 @@ Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr) * pa
 % -------------------------------------------------------------------------
 
 % 1. QAM Modulation.
-[bits_tx,Qsymb_tx, Preamble] = modulation(params,Nbits);
+[Preamble, bits_data, bits_pilot] = build_message(params,Nbits);
+
+bits_tx = vertcat(Preamble,bits_data);
+% bits_tx = bits_data;
+
+[Qsymb_pre] = modulation(params.modulation.Nbps,Preamble);      % Preamble modulation
+[Qsymb_data] = modulation(params.modulation.Nbps,bits_data);    % Message modulation
+[Qsymb_pilot] = modulation(params.modulation.Nbps,bits_pilot);  % Pilot modulation
+
+Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);
 
 % 2. OFDM Transmitter: 
-[signal_tx, Preamble_mod] = transmitter(params,Qsymb_tx,Nsymb_ofdm);
+[signal_tx] = transmitter(params, Qsymb_pre, Qsymb_data, Qsymb_pilot, Nsymb_ofdm);
 
 % 3. Channel propagation: 
 signal_rx = channel_propagation(params,signal_tx,SNR,STO,CFO);
@@ -61,7 +70,7 @@ signal_rx = signal_rx.*phi;
 
 signal_rx = horzcat(signal_rx(STO_estimated+1:end),zeros(1,STO_estimated));
 
-Qsymb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble_mod);
+Qsymb_rx = receiver(params,signal_rx,Nsymb_ofdm, Qsymb_pre,Qsymb_pilot);
 
 % 5. Demodulation:
 bits_rx = demodulation(params,Qsymb_rx);
