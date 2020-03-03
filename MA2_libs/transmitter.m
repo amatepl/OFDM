@@ -24,12 +24,34 @@
 %                       3 6 9
 %  dim(1,Nsymb_qam) <=> dim(N_subcrr,Nsymb_ofdm)
 
-function [signal_tx, Preamble] = transmitter(params,symb_tx,Nsymb_ofdm)
+function [signal_tx] = transmitter(params, symb_pre,symb_tx, symb_pilot, Nsymb_ofdm)
     
     % Serial to parallel converter
 %     symb_tx_parallel = reshape(symb_tx,params.ofdm.N_subcrr,Nsymb_ofdm);
-    symb_tx_parallel = reshape(symb_tx,[],Nsymb_ofdm);
-    Preamble = symb_tx_parallel(:,1:2);
+
+    symb_tx = reshape(symb_tx,[],Nsymb_ofdm);
+    
+    % Add pilots
+    symb_tx_1 = symb_tx(1:size(symb_tx)/2,:);
+    symb_tx_2 = symb_tx(size(symb_tx)/2+1:end,:);
+    
+    symb_tx_1 = reshape(symb_tx_1,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
+    symb_tx_2 = reshape(symb_tx_2,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
+    
+    symb_tx_1 = padarray(symb_tx_1,[1 0 0],symb_pilot,'pre');
+    symb_tx_2 = padarray(symb_tx_2,[1 0 0],symb_pilot,'post');
+    
+    symb_tx_1 = reshape(symb_tx_1,[],Nsymb_ofdm);
+    symb_tx_2 = reshape(symb_tx_2,[],Nsymb_ofdm);
+    
+    symb_tx = vertcat(symb_tx_1,symb_tx_2);
+
+    symb_pre = reshape(symb_pre,[],2);
+    symb_tx_parallel = horzcat(symb_pre,symb_tx);
+%     symb_tx_parallel = reshape(symb_tx,[],Nsymb_ofdm);
+    
+    
+    
     
     N_active_subcrr = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
     % Inactive subcarriers removal
@@ -38,14 +60,26 @@ function [signal_tx, Preamble] = transmitter(params,symb_tx,Nsymb_ofdm)
 %                               726,756,792,849,855,918,21017,1143,1155,1158,...
 %                               1185,1206,1260, 1407,1419,1428,1461,1530,1545,...
 %                               1572,1701,1702};
+% Pilot placement equation k = 3 * L + 12 * P 
+% 
+% k ∈ Indices from 0 to the number of Overall Usable Carriers minus 1
+% L ∈ 0 .. 3 denotes the symbol number with a cyclic period of 4
+% P ≥ 0 is an integer number
+    % pilotQAM
 
-    symb_tx_parallel = vertcat(symb_tx_parallel(1:(N_active_subcrr-1)/2,:),...
-                                zeros(1,Nsymb_ofdm),...
-                                symb_tx_parallel(end - (N_active_subcrr-1)/2:end,:));
+%     continuesLocationPilots = padarray([1 0 0 0 0 0 0 0 0 0 0],[0 params.ofdm.N_active_subcrr - 11],'circ','post');
+%     continuesLocationPilots = continuesLocationPilots * symb_pilot;
+    
+   
+    
 
-    symb_tx_parallel = vertcat(zeros((params.ofdm.N_inactive_subcrr-1)/2,Nsymb_ofdm),...
+    symb_tx_parallel = vertcat(symb_tx_parallel(1:(N_active_subcrr)/2,:),...
+                                zeros(1,Nsymb_ofdm+2),...
+                                symb_tx_parallel(end - (N_active_subcrr)/2 +1:end,:));
+
+    symb_tx_parallel = vertcat(zeros((params.ofdm.N_inactive_subcrr)/2 -1,Nsymb_ofdm+2),...
                                symb_tx_parallel,...
-                               zeros((params.ofdm.N_inactive_subcrr-1)/2,Nsymb_ofdm));
+                               zeros((params.ofdm.N_inactive_subcrr)/2,Nsymb_ofdm+2));
 
     
     

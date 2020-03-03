@@ -15,22 +15,13 @@
 %                     QAM constellation. dim=(N_qam_symb,1)
 %
    
-function [bits,Qam_symb, Preamble] = modulation(params,Nbits)
-    % Creation of a random binary bit vector
+function [Qam_symb] = modulation(Nbps,bits)
     
-    %Preamble
-    N_subcrr_act = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
-    Preamble= randi([0 1], N_subcrr_act * params.modulation.Nbps,1);
-    bits(1:N_subcrr_act * params.modulation.Nbps,1)=Preamble;
-    bits(N_subcrr_act * params.modulation.Nbps+1:2*N_subcrr_act * params.modulation.Nbps,1)=Preamble;
-    
-    bits(2*N_subcrr_act * params.modulation.Nbps+1:Nbits)= randi([0 1], Nbits-2*N_subcrr_act * params.modulation.Nbps,1);
-    
-%     bits = randi([0 1],Nbits,1);
-    % Number of bits per symbol
-    Nbps = params.modulation.Nbps;
+%     % Number of bits per symbol
+%     Nbps = params.modulation.Nbps;
+
     % Number of qam symbol
-    N_qam_symbol = Nbits/Nbps;
+    N_qam_symbol = size(bits,1)/Nbps;
     % Generation of the qam modulation
     Qam_symb = zeros(N_qam_symbol,1);
     % Reshape the bits in (N_qam_symbol,Nbps)

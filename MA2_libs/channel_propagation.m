@@ -22,16 +22,15 @@ function signal_rx = channel_propagation(params,signal_tx,SNR,STO,CFO)
     signal_tx_col = reshape(signal_tx,Lcp+Q,[]);
     impulse_response = zeros(Lcp+Q,1);
     impulse_response(1) = 1;
-    a = (rand(1,Lcp+Q-1)).';
-    %a = rand(1,2);
-    phi = 2*pi*(randn(1,Lcp+Q-1)).';
-    %phi = 2*pi*randn(1,2);
+    %a = (rand(1,Lcp+Q-1)).';
+    a = rand(1,1);
+    %phi = 2*pi*(randn(1,Lcp+Q-1)).';
+    phi = 2*pi*randn(1,1);
     % phi = 0;
     % map it to the range [0,2*pi]
     phi = mod(phi,2*pi);
     %impulse_response(randi([1,Lcp+Q])) = a*exp(1i*phi);
-    impulse_response(2:end) = a.*exp(1i*phi);
-    
+    impulse_response(2) = a*exp(1i*phi);
     impulse_matrix = convolutionMatrix(impulse_response);
     signal_rx = impulse_matrix*signal_tx_col;
     signal_rx = reshape(signal_rx,size(signal_rx,1)*size(signal_rx,2),1).';
