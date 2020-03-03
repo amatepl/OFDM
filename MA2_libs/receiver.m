@@ -40,9 +40,9 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     % Inactive subcarriers removal
     S = S((params.ofdm.N_inactive_subcrr-1)/2 + 1:end - (params.ofdm.N_inactive_subcrr-1)/2 ,:);
     N_active_subcrr = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
-    S = vertcat(S(1:(N_active_subcrr-1)/2,:),S(end - (N_active_subcrr-1)/2:end,:));  
+    S = vertcat(S(1:(N_active_subcrr-1)/2,:),S(end - (N_active_subcrr-1)/2:end,:));
     
-    %Channel estimation
+    %Channel estimation in frequency domain
     lambda=diag(Preamble(:,2));    
     H= lambda\S(:,2);  
     h=ifft(H);
@@ -54,8 +54,19 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble)
     for i=1:1:Nsymb_ofdm
     Hm(:,i)=H;
     end
-    S=S./Hm;
-  
+    %S=S./Hm;
+    
+    %Channel estimation in time domain
+    ht=ifft(lambda'*S(:,2));
+    ht(1,257:end)=0; 
+    Ht =fft(ht);
+    %Channel equalization
+    Htcirc = toeplitz(Ht, [Ht(1,1); zeros(N_active_subcrr-1,1)]);
+    Htm=zeros(N_active_subcrr, Nsymb_ofdm);
+    for i=1:1:Nsymb_ofdm
+     Htm(:,i)=Ht;
+    end
+    S=S./Htm;
     
   
     % P/S conversion
