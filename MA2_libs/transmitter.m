@@ -82,7 +82,6 @@ function [signal_tx] = transmitter(params, symb_pre,symb_tx, symb_pilot, Nsymb_o
                                zeros((params.ofdm.N_inactive_subcrr)/2,Nsymb_ofdm+2));
 
     
-    symb_tx_parallel(:,2) = symb_tx_parallel(:,1);
     
     
     

@@ -29,7 +29,7 @@ dispConfigFile(params);                 % display the parameters
 
 % --- Local parameters
 SNR = 10;           % SNR in dB
-STO = 30;
+STO = 0;
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
 CFO = 10e-6;
 % Nsymb_ofdm = 2;     % number OFDM symbols to transmit

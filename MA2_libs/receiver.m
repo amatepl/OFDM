@@ -41,23 +41,46 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     % Inactive subcarriers removal
     S = S((params.ofdm.N_inactive_subcrr)/2 :end - (params.ofdm.N_inactive_subcrr)/2,:);
     N_active_subcrr = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
+
     S = vertcat(S(1:(N_active_subcrr)/2,:),S(end - (N_active_subcrr)/2 +1:end,:));  
     
-    %Channel estimation
+    %Channel estimation i frequency damain
 %     lambda=diag(Preamble(:,2));    
     lambda=diag(Preamble(1:end - size(Preamble,1)/2,1));   
+
     H= lambda\S(:,2);  
     h=ifft(H);
     h(1,257:end)=0;
     H=fft(h);
     %Channel equalization
     Hcirc = toeplitz(H, [H(1,1); zeros(N_active_subcrr-1,1)]);
+% <<<<<<< HEAD
     Hm = ones(N_active_subcrr, Nsymb_ofdm +2).*H;
+    
 %     Hm=zeros(N_active_subcrr, Nsymb_ofdm);
 %     for i=1:1:Nsymb_ofdm
 %     Hm(:,i)=H;
 %     end
-    S=S./Hm;
+
+%     S=S./Hm;
+    
+%    =======
+    
+    
+    %Channel estimation in time domain
+    ht=ifft(lambda'*S(:,2));
+    ht(1,257:end)=0; 
+    Ht =fft(ht);
+    %Channel equalization
+    Htcirc = toeplitz(Ht, [Ht(1,1); zeros(N_active_subcrr-1,1)]);
+    Htm = ones(N_active_subcrr, Nsymb_ofdm +2).*Ht;
+    
+%     Htm=zeros(N_active_subcrr, Nsymb_ofdm+2);
+%     for i=1:1:Nsymb_ofdm+2
+%      Htm(:,i)=Ht;
+%     end
+    S=S./Htm;
+% >>>>>>> b979aed8cc43ae69a08ebfe9bb02291ae8c376ca
   
     % CFO tracking
     S_pilots = S(:,3:end);
@@ -103,6 +126,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     phi = conj(pilots_rx).*(H_pilots.*ones(size(pilots_rx)).*pilot);
     
     phi = -angle(sum(phi,'all'));
+
     
   
     % P/S conversion
@@ -113,8 +137,8 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
     S = reshape(S(:,1:2),[],1);
     
-    symb_rx = vertcat(S,S_pilots).*exp(1i*phi);
-    
+%     symb_rx = vertcat(S,S_pilots).*exp(1i*phi);
+    symb_rx = vertcat(S,S_pilots);
     
     % ---------------------------------------------------------------------
     % 'simple_ofdm_Tx': Implements a simple ofdm transmitter: S/P, IFFT, CP
