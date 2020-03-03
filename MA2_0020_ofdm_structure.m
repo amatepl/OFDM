@@ -31,7 +31,7 @@ dispConfigFile(params);                 % display the parameters
 SNR = 20;           % SNR in dB
 STO = 30;
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-CFO = 10e-6;
+CFO = 40e-6;
 % Nsymb_ofdm = 2;     % number OFDM symbols to transmit
 Nsymb_ofdm = params.ofdm.data_L;     % number OFDM symbols to transmit
 Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr) * params.modulation.Nbps;
@@ -49,11 +49,11 @@ Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr) * pa
 [signal_tx, Preamble_mod] = transmitter(params,Qsymb_tx,Nsymb_ofdm);
 
 % 3. Channel propagation: 
-signal_rx = channel_propagation(params,signal_tx,SNR,STO,CFO);
+signal_rx1 = channel_propagation(params,signal_tx,SNR,STO,CFO);
+signal_rx2 = channel_propagation(params,signal_tx,SNR,STO,CFO);
 
 % 4. OFDM Receiver:
 [STO_estimated, CFO_estimated] = estimationSTOCFO(params,signal_rx);
-
 T = 1/params.ofdm.B;
 n = 1:1:size(signal_rx,2);
 phi = exp(1i*CFO_estimated*T*n);
