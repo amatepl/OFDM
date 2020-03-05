@@ -35,8 +35,8 @@ CFO = 10e-6;
 % Nsymb_ofdm = 2;     % number OFDM symbols to transmit
 Nsymb_ofdm = params.ofdm.data_L;     % number OFDM symbols to transmit
 
-%Nbps = params.modulation.Nbps;
-Nbps = 1;
+Nbps = params.modulation.Nbps;
+%Nbps = 1;
 Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr- params.ofdm.N_pilots) * Nbps;
 
 
@@ -51,9 +51,9 @@ Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr- para
 %bits_tx = vertcat(Preamble,bits_data);
  bits_tx = bits_data;
 
-[Qsymb_pre] = modulation(Nbps,Preamble,'bpsk');      % Preamble modulation
-[Qsymb_data] = modulation(Nbps,bits_data,'bpsk');    % Message modulation
-[Qsymb_pilot] = modulation(Nbps,bits_pilot,'bpsk');  % Pilot modulation
+[Qsymb_pre] = modulation(Nbps,Preamble,'qpsk');      % Preamble modulation
+[Qsymb_data] = modulation(Nbps,bits_data,'qpsk');    % Message modulation
+[Qsymb_pilot] = modulation(Nbps,bits_pilot,'qpsk');  % Pilot modulation
 
 Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);
 
@@ -76,7 +76,7 @@ signal_rx = horzcat(signal_rx(STO_estimated+1:end),zeros(1,STO_estimated));
 Qsymb_rx = receiver(params,signal_rx,Nsymb_ofdm, Qsymb_pre,Qsymb_pilot);
 
 % 5. Demodulation:
-bits_rx = demodulation(params,Qsymb_rx,'bpsk');
+bits_rx = demodulation(params,Qsymb_rx,'qpsk');
 
 
 % -------------------------------------------------------------------------
