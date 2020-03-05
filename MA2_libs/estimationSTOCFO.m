@@ -1,10 +1,10 @@
 function [STO_estimated, CFO_estimated] = estimationSTOCFO(params,signal_rx)
      
-    T = 1/params.ofdm.B;
+    T = 1/params.B;
     % SFO & CFO Estimation & Correction
     
 
-    N = params.ofdm.N_subcrr+params.ofdm.cp_L;
+    N = params.Q+params.LCP;
     %An = zeros(N,1);
     %n = An;
     
@@ -21,11 +21,14 @@ function [STO_estimated, CFO_estimated] = estimationSTOCFO(params,signal_rx)
     
     n = abs(An)./(vecnorm(M).^2);
     
+<<<<<<< HEAD
     
 %     for i=1:N
 %         An(i) = signal_rx(i:N+i-1)*(signal_rx(N+i:(2*N)+i-1)');
 %         n(i) = norm(An(i))/norm(signal_rx(i:(2*N)+i-1))^2;
 %     end
+=======
+>>>>>>> 1f6ff84f47e87fa5d9db976e9ff768935a728b83
     STO_estimated = find(n==max(n))-1;
     CFO_estimated = -angle(An(STO_estimated+1))/(T*N);
     %CFO_estimated = 0;

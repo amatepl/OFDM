@@ -24,9 +24,6 @@
 
 function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
 
-   
-    
-
     % S/P conversion
     %s = reshape(signal_rx,length(signal_rx)/Nsymb_ofdm,Nsymb_ofdm+2);
     s = reshape(signal_rx,[],Nsymb_ofdm+2);
@@ -54,6 +51,9 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     H=fft(h);
     %Channel equalization
     Hcirc = toeplitz(H, [H(1,1); zeros(N_active_subcrr-1,1)]);
+
+    Hm = ones(N_active_subcrr, Nsymb_ofdm +2).*H;
+  
 % <<<<<<< HEAD
     Hm = ones(N_active_subcrr, Nsymb_ofdm +2).*H;
     
@@ -66,8 +66,7 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
 %    =======
     
-    
-    %Channel estimation in time domain
+   
     %Channel estimation in time domain
     a=lambda'*S(:,2);
     ht = ifft(a,N_active_subcrr);
@@ -76,12 +75,14 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     Htcirc = toeplitz(Ht, [Ht(1,1); zeros(N_active_subcrr-1,1)]);
     Htm = ones(N_active_subcrr, Nsymb_ofdm +2).*Ht;
     
+    S=S./Htm;
 %     Htm=zeros(N_active_subcrr, Nsymb_ofdm+2);
 %     for i=1:1:Nsymb_ofdm+2
 %      Htm(:,i)=Ht;
 %     end
     S=Htcirc'*S;
 % >>>>>>> b979aed8cc43ae69a08ebfe9bb02291ae8c376ca
+>>>>>>> fa13fb6a54b1f2399eb82482356467e845f5cc03
   
     % CFO tracking
     S_pilots = S(:,3:end);
@@ -110,8 +111,13 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     S_pilots = vertcat(S_pilots_1,S_pilots_2);  % Message without pilots
     
     % Find impulse responses corresponding to pilot frequencies
+<<<<<<< HEAD
+    H_pilots_1 = Ht(1:size(Ht,1)/2 ,:);
+    H_pilots_2 = Ht(size(Ht,1)/2 +1:end,:);
+=======
     H_pilots_1 = H(1:size(H,1)/2 ,:);
     H_pilots_2 = H(size(H,1)/2 +1:end,:);
+>>>>>>> fa13fb6a54b1f2399eb82482356467e845f5cc03
     
     H_pilots_1 = reshape(H_pilots_1,[],params.ofdm.N_pilots/2);
     H_pilots_2 = reshape(H_pilots_2,[],params.ofdm.N_pilots/2);
@@ -124,22 +130,35 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
     H_pilots = vertcat(H_pilots_1,H_pilots_2);
     
-    phi = conj(pilots_rx).*(H_pilots.*ones(size(pilots_rx)).*pilot);
+<<<<<<< HEAD
+    phi = conj(pilots_rx)*pilot;
+    phi = angle(sum(phi,1));
+
+  
+    % P/S conversion
+
+    S_pilots = S_pilots.*(kron(exp(1i*phi),ones(size(S_pilots,1),1))); 
     
-    phi = -angle(sum(phi,'all'));
+    S_pilots = reshape(S_pilots,[],1);
+       
+    symb_rx = S_pilots;
+
+%    phi = conj(pilots_rx).*(H_pilots.*ones(size(pilots_rx)).*pilot);
+    
+%    phi = -angle(sum(phi,'all'));
 
     
   
     % P/S conversion
     %symb_rx = reshape(S,params.ofdm.N_subcrr*Nsymb_ofdm,1);
 %     symb_rx = reshape(S,[],1);
-    
-    S_pilots = reshape(S_pilots,[],1);
-    
-    S = reshape(S(:,1:2),[],1);
-    
+%    
+%    S_pilots = reshape(S_pilots,[],1);
+%    
+%    S = reshape(S(:,1:2),[],1);
+%    
 %     symb_rx = vertcat(S,S_pilots).*exp(1i*phi);
-    symb_rx = vertcat(S,S_pilots);
+%    symb_rx = vertcat(S,S_pilots);
     
     % ---------------------------------------------------------------------
     % 'simple_ofdm_Tx': Implements a simple ofdm transmitter: S/P, IFFT, CP

@@ -28,10 +28,10 @@ params = cfg.params;                    % get the set of parameters
 dispConfigFile(params);                 % display the parameters
 
 % --- Local parameters
-SNR = 15;           % SNR in dB
-STO = 10;
+SNR = 20;           % SNR in dB
+STO = 20;
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-CFO = 10e-6;
+CFO = 40e-6;
 % Nsymb_ofdm = 2;     % number OFDM symbols to transmit
 Nsymb_ofdm = params.ofdm.data_L;     % number OFDM symbols to transmit
 
