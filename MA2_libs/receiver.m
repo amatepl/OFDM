@@ -68,9 +68,10 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
     
     %Channel estimation in time domain
-    ht=ifft(lambda'*S(:,2));
-    ht(1,257:end)=0; 
-    Ht =fft(ht);
+    %Channel estimation in time domain
+    a=lambda'*S(:,2);
+    ht = ifft(a,N_active_subcrr);
+    Ht=fft(ht(1:256,1),N_active_subcrr); 
     %Channel equalization
     Htcirc = toeplitz(Ht, [Ht(1,1); zeros(N_active_subcrr-1,1)]);
     Htm = ones(N_active_subcrr, Nsymb_ofdm +2).*Ht;

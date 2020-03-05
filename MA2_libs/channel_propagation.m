@@ -43,7 +43,7 @@ function signal_rx = channel_propagation(params,signal_tx,SNR,STO,CFO)
     noise = noise_std*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));      % noise
     
     % STO
-    signal_rx = signal_tx;
+    %signal_rx = signal_tx;
     signal_rx = [zeros(1,STO), signal_rx(1:end-STO)];
     
     % Frequency offset (CFO)
