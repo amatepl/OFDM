@@ -25,7 +25,8 @@ function bits_rx = demodulation(params,symb_rx)
 
     Nsymb = size(symb_rx,1); % Number of symbols
     % Number of bits per symbol
-    Nbps = params.modulation.Nbps;
+%     Nbps = params.modulation.Nbps;
+    Nbps = 2;
     % REAL PART
     NbpsI = Nbps/2; 
     symb_rxI = real(symb_rx);
