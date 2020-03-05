@@ -28,8 +28,8 @@ params = cfg.params;                    % get the set of parameters
 dispConfigFile(params);                 % display the parameters
 
 % --- Local parameters
-SNR = 10;           % SNR in dB
-STO = 0;
+SNR = 15;           % SNR in dB
+STO = 20;
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
 CFO = 10e-6;
 % Nsymb_ofdm = 2;     % number OFDM symbols to transmit
@@ -45,8 +45,8 @@ Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr- para
 % 1. QAM Modulation.
 [Preamble, bits_data, bits_pilot] = build_message(params,Nbits);
 
-bits_tx = vertcat(Preamble,bits_data);
-% bits_tx = bits_data;
+%bits_tx = vertcat(Preamble,bits_data);
+ bits_tx = bits_data;
 
 [Qsymb_pre] = modulation(params.modulation.Nbps,Preamble);      % Preamble modulation
 [Qsymb_data] = modulation(params.modulation.Nbps,bits_data);    % Message modulation

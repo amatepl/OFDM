@@ -109,8 +109,8 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     S_pilots = vertcat(S_pilots_1,S_pilots_2);  % Message without pilots
     
     % Find impulse responses corresponding to pilot frequencies
-    H_pilots_1 = H(1:size(H,1)/2 ,:);
-    H_pilots_2 = H(size(H,1)/2 +1:end,:);
+    H_pilots_1 = Ht(1:size(Ht,1)/2 ,:);
+    H_pilots_2 = Ht(size(Ht,1)/2 +1:end,:);
     
     H_pilots_1 = reshape(H_pilots_1,[],params.ofdm.N_pilots/2);
     H_pilots_2 = reshape(H_pilots_2,[],params.ofdm.N_pilots/2);
@@ -125,20 +125,24 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
     phi = conj(pilots_rx).*(H_pilots.*ones(size(pilots_rx)).*pilot);
     
-    phi = -angle(sum(phi,'all'));
+    phi = angle(sum(phi,1));
 
-    
   
     % P/S conversion
     %symb_rx = reshape(S,params.ofdm.N_subcrr*Nsymb_ofdm,1);
 %     symb_rx = reshape(S,[],1);
+
+    S_pilots = S_pilots.*(kron(exp(1i*phi),ones(size(S_pilots,1),1))); 
+
+%     S(:,1:2) = S(:,1:2).*(kron(exp(1i*phi),ones(size(S,1),1)));
     
     S_pilots = reshape(S_pilots,[],1);
     
-    S = reshape(S(:,1:2),[],1);
+%     S = reshape(S(:,1:2),[],1);     % Pilot symbols
     
-%     symb_rx = vertcat(S,S_pilots).*exp(1i*phi);
-    symb_rx = vertcat(S,S_pilots);
+  %  symb_rx = vertcat(S,S_pilots).*exp(1i*phi);
+%     symb_rx = vertcat(S,S_pilots);
+    symb_rx = S_pilots;
     
     % ---------------------------------------------------------------------
     % 'simple_ofdm_Tx': Implements a simple ofdm transmitter: S/P, IFFT, CP
