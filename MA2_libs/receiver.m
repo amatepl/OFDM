@@ -36,6 +36,11 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     %FFT
     S=fft(s(:,1:end),params.Q);
     
+    figure, hold on;
+    fq = -params.Q/2:1:params.Q/2-1;
+    plot(fq,abs(ifftshift(S(:,1))));
+    grid on;
+    
     % Inactive subcarriers removal
     
     N_inactive_subcrr = params.Q - params.nActiveQ;
@@ -55,9 +60,10 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     %Channel equalization
     Hcirc = toeplitz(H, [H(1,1); zeros(params.nActiveQ-1,1)]);
     Hm = ones(params.nActiveQ, params.nData +2).*H;
+    Sm = S./Hm;
   
     %Channel estimation in time domain
-    a=lambda'*S(:,2);
+    a=lambda'*S(:,1);
     ht = ifft(a,params.nActiveQ);
     Ht=fft(ht(1:params.LCP,1),params.nActiveQ); 
     %Channel equalization
@@ -68,14 +74,24 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
     figure, hold on;
     fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
-    plot(fq,abs(fftshift(Hm(:,1))));
+    plot(fq,abs(fftshift(S(:,1))));
     grid on;
-    title("Frequency domain estiamtion");
     
     figure, hold on;
-    plot(fq,abs(fftshift(Htm(:,1))));
+    fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
+    plot(fq,abs(fftshift(Sm(:,1))));
     grid on;
-    title("Time domain estiamtion");
+    
+%     figure, hold on;
+%     fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
+%     plot(fq,abs(fftshift(Hm(:,1))));
+%     grid on;
+%     title("Frequency domain estiamtion");
+%     
+%     figure, hold on;
+%     plot(fq,abs(fftshift(Htm(:,1))));
+%     grid on;
+%     title("Time domain estiamtion");
 
 %     % CFO tracking
 %     S_pilots = S(:,3:end);
