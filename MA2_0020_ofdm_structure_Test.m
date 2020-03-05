@@ -54,7 +54,7 @@ Qsymb_pilot = 0;
 Qsymb_rx = receiver(params,signal_rx,params.nData, Qsymb_pre,Qsymb_pilot);
 
 % 5. Demodulation:
-bits_rx = demodulation(params,Qsymb_rx);
+bits_rx = demodulation(params,Qsymb_rx,'qpsk');
 
 
 % -------------------------------------------------------------------------

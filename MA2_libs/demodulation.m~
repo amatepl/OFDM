@@ -23,14 +23,14 @@ function bits_rx = demodulation(params,symb_rx, modulation)
 % OUTPUTS:
 % - bit_rx : vector of ouput bits
 
+
     switch modulation
         
         case 'qpsk'
             
             Nsymb = size(symb_rx,1); % Number of symbols
             % Number of bits per symbol
-%             Nbps = params.modulation.Nbps;
-            Nbps = 2;
+            Nbps = params.modulation.Nbps;
             % REAL PART
             NbpsI = Nbps/2;
             symb_rxI = real(symb_rx);
@@ -80,29 +80,28 @@ function bits_rx = demodulation(params,symb_rx, modulation)
             bits_rx = reshape([bit_rxI,bit_rxQ]',Nsymb*Nbps,1);
             
         case 'bpsk'
-            Nbps = 1;
             % Symbol to integer
             sigma = sqrt(sum(([0:2^Nbps-1]-(2^Nbps-1)/2).^2)/2^Nbps); 
-            int_rx = sigma * symb_rx + (2^Nbps-1)/2;
-            
-            % Integer detection
-            
-            int_det = round(real(int_rx));
-            %         int_det(find(int_det<0)) = 0;
-            %         int_det(find(int_det>2^Nbps-1)) = 2^Nbps-1;
-            int_det(int_det<0) = 0;
-            int_det(int_det>2^Nbps-1) = 2^Nbps-1;
-            
-            % Integer to binary
-            mapp_rx  = fliplr(de2bi(int_det));
-            
-            % Binary to gray
-            bit_rx2(:,1) = mapp_rx(:,1);
-            for ii = 2:Nbps
-                bit_rx2(:,ii) = xor( mapp_rx(:,ii-1) , mapp_rx(:,ii) );
-            end
-            Nsymb = size(symb_rx,1); % Number of symbols
-            bits_rx = reshape(bit_rx2',Nsymb*Nbps,1);
+        int_rx = sigma * symb_rx + (2^Nbps-1)/2;
+
+        % Integer detection
+      
+        int_det = round(real(int_rx));
+%         int_det(find(int_det<0)) = 0;
+%         int_det(find(int_det>2^Nbps-1)) = 2^Nbps-1;
+        int_det(int_det<0) = 0;
+        int_det(int_det>2^Nbps-1) = 2^Nbps-1;
+
+        % Integer to binary
+        mapp_rx  = fliplr(de2bi(int_det));
+
+        % Binary to gray
+        bit_rx2(:,1) = mapp_rx(:,1);
+        for ii = 2:Nbps,
+            bit_rx2(:,ii) = xor( mapp_rx(:,ii-1) , mapp_rx(:,ii) );
+        end
+
+        bit_rx = reshape(bit_rx2',Nsymb*Nbps,1);
             
     end
             
