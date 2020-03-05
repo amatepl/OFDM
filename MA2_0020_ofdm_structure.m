@@ -28,12 +28,14 @@ params = cfg.params;                    % get the set of parameters
 dispConfigFile(params);                 % display the parameters
 
 % --- Local parameters
-SNR = 10;           % SNR in dB
-STO = 0;
+SNR = 20;                               % SNR wanted in dB
+STO = 255;                              % Time offset in unit vector
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-CFO = 10e-6;
-% Nsymb_ofdm = 2;     % number OFDM symbols to transmit
-Nsymb_ofdm = params.ofdm.data_L;     % number OFDM symbols to transmit
+CFO = 0;                            % Carrier frequency offset
+% Nsymb_ofdm = 2;                       % number OFDM symbols to transmit (test for 2)
+Nsymb_ofdm = params.ofdm.data_L;        % number OFDM symbols to transmit
+% Number of bits transmitted without pilots and inactive subcarriers.
+% Depends on number of bit modulation. (BPSK - 1; QAM4 - 2; ...)
 Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr- params.ofdm.N_pilots) * params.modulation.Nbps;
 
 
@@ -42,20 +44,16 @@ Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr- para
 % ------------------- OFDM Communication Chain ----------------------------
 % -------------------------------------------------------------------------
 
-% 1. QAM Modulation.
-[Preamble, bits_data, bits_pilot] = build_message(params,Nbits);
+% 1. Message, Preamble and Pilot creation.
+[Preamble, bits_mes, bits_pilot] = build_message(params,Nbits);
 
-bits_tx = vertcat(Preamble,bits_data);
-% bits_tx = bits_data;
-
-[Qsymb_pre] = modulation(params.modulation.Nbps,Preamble);      % Preamble modulation
-[Qsymb_data] = modulation(params.modulation.Nbps,bits_data);    % Message modulation
-[Qsymb_pilot] = modulation(params.modulation.Nbps,bits_pilot);  % Pilot modulation
-
-Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);
+% 2. Modulation of bit sequences
+[Qsymb_preamble] = modulation(params.modulation.Nbps,Preamble);  % Preamble modulation
+[Qsymb_message] = modulation(params.modulation.Nbps,bits_mes);   % Message modulation
+[Qsymb_pilot] = modulation(params.modulation.Nbps,bits_pilot);   % Pilot modulation
 
 % 2. OFDM Transmitter: 
-[signal_tx] = transmitter(params, Qsymb_pre, Qsymb_data, Qsymb_pilot, Nsymb_ofdm);
+[signal_tx] = transmitter(params, Qsymb_preamble, Qsymb_message, Qsymb_pilot, Nsymb_ofdm);
 
 % 3. Channel propagation: 
 signal_rx = channel_propagation(params,signal_tx,SNR,STO,CFO);
@@ -70,7 +68,7 @@ signal_rx = signal_rx.*phi;
 
 signal_rx = horzcat(signal_rx(STO_estimated+1:end),zeros(1,STO_estimated));
 
-Qsymb_rx = receiver(params,signal_rx,Nsymb_ofdm, Qsymb_pre,Qsymb_pilot);
+Qsymb_rx = receiver(params,signal_rx,Nsymb_ofdm, Qsymb_preamble,Qsymb_pilot);
 
 % 5. Demodulation:
 bits_rx = demodulation(params,Qsymb_rx);

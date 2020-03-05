@@ -30,7 +30,7 @@ function signal_rx = channel_propagation(params,signal_tx,SNR,STO,CFO)
     % map it to the range [0,2*pi]
     phi = mod(phi,2*pi);
     %impulse_response(randi([1,Lcp+Q])) = a*exp(1i*phi);
-    impulse_response(2) = a*exp(1i*phi);
+    %impulse_response(2) = a*exp(1i*phi);
     impulse_matrix = convolutionMatrix(impulse_response);
     signal_rx = impulse_matrix*signal_tx_col;
     signal_rx = reshape(signal_rx,size(signal_rx,1)*size(signal_rx,2),1).';
@@ -55,7 +55,7 @@ function signal_rx = channel_propagation(params,signal_tx,SNR,STO,CFO)
     phi = exp(1i*delta_w*T*n);
     signal_rx = signal_rx.*phi;
     
-    signal_rx = signal_rx+noise.'; 
+    signal_rx = signal_rx;%+noise.'; 
     
     % Matched filter + MMSE equalizer
 %     impulse_response = [zeros(STO,1); impulse_response(1:end-STO)];

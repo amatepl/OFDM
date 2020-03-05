@@ -124,8 +124,9 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
     H_pilots = vertcat(H_pilots_1,H_pilots_2);
     
-    phi = conj(pilots_rx).*(H_pilots.*ones(size(pilots_rx)).*pilot);
-    
+    %phi = conj(pilots_rx).*(H_pilots.*ones(size(pilots_rx)).*pilot);
+    phi = conj(pilots_rx)*pilot;
+   
     phi = -angle(sum(phi,'all'));
 
     
@@ -138,8 +139,8 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
     S = reshape(S(:,1:2),[],1);
     
-%     symb_rx = vertcat(S,S_pilots).*exp(1i*phi);
-    symb_rx = vertcat(S,S_pilots);
+    symb_rx = vertcat(S,S_pilots).*exp(1i*phi);
+%     symb_rx = vertcat(S,S_pilots);
     
     % ---------------------------------------------------------------------
     % 'simple_ofdm_Tx': Implements a simple ofdm transmitter: S/P, IFFT, CP
