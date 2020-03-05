@@ -15,10 +15,12 @@ function [STO_estimated, CFO_estimated] = estimationSTOCFO(params,signal_rx)
     
     An = conj(signal_rx(1:2*N-1)*M);
     
+    
     M = triu(tril(signal_rx(1:(2*N)+N-1)'.*ones(size(signal_rx(1:(2*N)+N-1)))),-2*N +1);
     M = M(:,1:N);
     
     n = abs(An)./(vecnorm(M).^2);
+    
     
 %     for i=1:N
 %         An(i) = signal_rx(i:N+i-1)*(signal_rx(N+i:(2*N)+i-1)');
