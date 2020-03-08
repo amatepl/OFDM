@@ -54,7 +54,7 @@ Qsymb_pilot = 0;
 Qsymb_rx = receiver(params,signal_rx,params.nData, Qsymb_pre,Qsymb_pilot);
 
 % 5. Demodulation:
-bits_rx = demodulation(params,Qsymb_rx,'qpsk');
+bits_rx = demodulation(params,Qsymb_rx,'bpsk');
 
 
 % -------------------------------------------------------------------------
@@ -71,6 +71,6 @@ bits_rx = demodulation(params,Qsymb_rx,'qpsk');
 % subplot(1,2,2); plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
 % title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
 
-figure;
-plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
-title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
+% figure;
+% plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
+% title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
