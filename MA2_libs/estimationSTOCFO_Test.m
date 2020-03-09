@@ -1,4 +1,4 @@
-function [STO_estimated, CFO_estimated] = estimationSTOCFO(params,signal_rx)
+function [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx)
      
     T = 1/params.B;
     % SFO & CFO Estimation & Correction

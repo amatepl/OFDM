@@ -22,7 +22,7 @@
 %       symb_rx     : QAM symbols. dim = (N_qam_symb,1)
 %
 
-function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
+function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
 
     signal_rx = signal_rx(1:end-mod(size(signal_rx,2),32));
 
