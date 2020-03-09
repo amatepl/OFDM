@@ -35,19 +35,30 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
     %FFT
     S=fft(s(:,1:end),params.Q);
-    
-    figure, hold on;
-    fq = -params.Q/2:1:params.Q/2-1;
-    plot(fq,abs(ifftshift(S(:,1))));
-    grid on;
+     
+%     figure, hold on;
+%     fq = -params.Q/2:1:params.Q/2-1;
+%     plot(fq,abs(ifftshift(S(:,1))));
+%     grid on;
+%     title("signal rx with CFO and STO correction applied");
     
     % Inactive subcarriers removal
     
     N_inactive_subcrr = params.Q - params.nActiveQ;
-    S = S((N_inactive_subcrr)/2 :end - (N_inactive_subcrr)/2 ,:);
-%     N_active_subcrr = params.Q - params.ofdm.N_inactive_subcrr;
+%     S = S((N_inactive_subcrr)/2 :end - (N_inactive_subcrr)/2 ,:); %
+%     Borders removal
+%     N_active_subcrr = params.Q - params.ofdm.N_inactive_subcrr;   
 
-    S = vertcat(S(1:(params.nActiveQ)/2,:),S(end - (params.nActiveQ)/2 +1:end,:));  
+%     S = vertcat(S(1:(params.nActiveQ)/2,:),S(end - (params.nActiveQ)/2
+%     +1:end,:));  % zero removal
+
+    S = S(params.ActiveQIndex,:);
+    
+    figure, hold on;
+    fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
+    plot(fq,abs(fftshift(S(:,1))));
+    grid on;
+    title("signal rx after inactive subcarriers removal");
     
     %Channel estimation i frequency damain
     lambda=diag(Preamble);    
@@ -57,30 +68,44 @@ function symb_rx = receiver(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     h=ifft(H);
     h(1,params.LCP:end)=0;
     H=fft(h);
+    H = H/sqrt(params.nActiveQ);
     %Channel equalization
     Hcirc = toeplitz(H, [H(1,1); zeros(params.nActiveQ-1,1)]);
     Hm = ones(params.nActiveQ, params.nData +2).*H;
     Sm = S./Hm;
   
+    figure, hold on;
+    fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
+    plot(fq,abs(fftshift(H)));
+    grid on;
+    title("Frequency domain channel estimation");
+    
+    
     %Channel estimation in time domain
-    a=lambda'*S(:,1);
-    ht = ifft(a,params.nActiveQ);
-    Ht=fft(ht(1:params.LCP,1),params.nActiveQ); 
+    a=lambda'*S(:,2);
+    
+    ht = dftmtx(params.nActiveQ)'*(lambda')*lambda*dftmtx(params.nActiveQ);
+    
+    
+    ht = ht\ifft(a,params.nActiveQ);
+    Ht=fft(ht(1:end,1),params.nActiveQ); 
+    Ht = Ht/sqrt(params.nActiveQ);
+    
     %Channel equalization
+    
+    figure, hold on;
+    fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
+    plot(fq,abs(fftshift(Ht)));
+    grid on;
+    title("Time domain channel estimation");
+        
+    
     Htcirc = toeplitz(Ht, [Ht(1,1); zeros(params.nActiveQ-1,1)]);
     Htm = ones(params.nActiveQ, params.nData +2).*Ht;
     
-    S=S./Htm;
-    
-    figure, hold on;
-    fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
-    plot(fq,abs(fftshift(S(:,1))));
-    grid on;
-    
-    figure, hold on;
-    fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
-    plot(fq,abs(fftshift(Sm(:,1))));
-    grid on;
+%     S=S./Htm;
+    %S = S./Hm;
+    S=diag(Ht)\S;
     
 %     figure, hold on;
 %     fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
