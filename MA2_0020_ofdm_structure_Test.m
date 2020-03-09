@@ -37,21 +37,24 @@ signal_rx = signal_rx.sig_rx;
 
 
 % 4. OFDM Receiver:
-[STO_estimated, CFO_estimated] = estimationSTOCFO(params,signal_rx);
+[STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx);
 
 T = 1/params.B;
 n = 1:1:size(signal_rx,2);
-phi = exp(1i*CFO_estimated*T*n);
+phi = exp(1i*CFO_estimated*T*n);    
 signal_rx = signal_rx.*phi;
 
-signal_rx = horzcat(signal_rx(STO_estimated+1:end),zeros(1,STO_estimated));
+% signal_rx = horzcat(signal_rx(STO_estimated+1:end),zeros(1,STO_estimated));
+
+Nsymb = (params.Q+params.LCP)*(params.nData+params.nPreamble);
+signal_rx = signal_rx(STO_estimated+1:STO_estimated+Nsymb);
 
 Qsymb_pre = params.PreambleSymbols;
-Qsymb_pre = Qsymb_pre(params.ActiveQIndex);
+Qsymb_pre = Qsymb_pre(params.ActiveQIndex); % Removing inactive subcarriers
 
 Qsymb_pilot = 0;
 
-Qsymb_rx = receiver(params,signal_rx,params.nData, Qsymb_pre,Qsymb_pilot);
+Qsymb_rx = receiver_Test(params,signal_rx,params.nData, Qsymb_pre,Qsymb_pilot);
 
 % 5. Demodulation:
 bits_rx = demodulation(params,Qsymb_rx,'bpsk');
@@ -71,6 +74,6 @@ bits_rx = demodulation(params,Qsymb_rx,'bpsk');
 % subplot(1,2,2); plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
 % title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
 
-% figure;
-% plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
+figure;
+plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
 % title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
