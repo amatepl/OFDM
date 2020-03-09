@@ -80,7 +80,7 @@ CFO_estimated = mean(CFO_estimated,'all');
 T = 1/params.ofdm.B;
 n = 1:1:size(signal_rx,2);
 phi = exp(1i*CFO_estimated*T*n);
-signal_rx = signal_rx./phi;
+signal_rx = signal_rx.*phi;
 
 %rough STO correction
 signal_rx = [signal_rx(:,STO_estimated+1:end),signal_rx(:,1:STO_estimated)];

@@ -39,6 +39,10 @@ signal_rx = signal_rx.sig_rx;
 % 4. OFDM Receiver:
 [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx);
 
+%Average over the antennas
+STO_estimated = round(mean(STO_estimated,'all'));
+CFO_estimated = mean(CFO_estimated,'all');
+
 T = 1/params.B;
 n = 1:1:size(signal_rx,2);
 phi = exp(1i*CFO_estimated*T*n);    
