@@ -1,10 +1,10 @@
 function [STO_estimated, CFO_estimated] = estimationSTOCFO(params,signal_rx)
      
-    T = 1/params.ofdm.B;
+    T = 1/params.B;
     % SFO & CFO Estimation & Correction
     
 
-    N = params.ofdm.N_subcrr+params.ofdm.cp_L;
+    N = params.Q+params.LCP;
     %An = zeros(N,1);
     %n = An;
     

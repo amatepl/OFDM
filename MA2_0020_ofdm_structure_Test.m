@@ -37,7 +37,7 @@ signal_rx = signal_rx.sig_rx;
 
 
 % 4. OFDM Receiver:
-[STO_estimated, CFO_estimated] = estimationSTOCFO(params,signal_rx);
+[STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx);
 
 T = 1/params.B;
 n = 1:1:size(signal_rx,2);
