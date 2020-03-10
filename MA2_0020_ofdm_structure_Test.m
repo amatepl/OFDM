@@ -40,10 +40,11 @@ CFO = 10e-6;                        % Carrier frequency offset
 Nsymb_ofdm = params.nData;    % number OFDM symbols to transmit
 Nr = 2;                             % number of receivers
 
-Nbps = params.modulation.Nbps;      % QAM modulation
-%Nbps = 1;                          % BPSK modulation
+% Nbps = params.modulation.Nbps;      % QAM modulation
+Nbps = 1;                          % BPSK modulation
 % Number of bits knowing the inactive subcarriers and the number of pilots
-Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr- params.ofdm.N_pilots) * Nbps;
+N_pilots = 126;
+Nbits = Nsymb_ofdm * (params.nActiveQ - N_pilots) * Nbps;
 
 
 %% ------------------------------------------------------------------------
@@ -51,7 +52,7 @@ Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr- para
 % -------------------------------------------------------------------------
 
 % 1. Message, preamble and pilot construction
-[Preamble, bits_data, bits_pilot] = build_message(params,Nbits,Nbps);
+[Preamble, bits_data, bits_pilot] = build_message_test(params,Nbits,Nbps);
 
 %bits_tx = vertcat(Preamble,bits_data);
  bits_tx = bits_data;
@@ -67,7 +68,7 @@ Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);
 [signal_tx] = transmitter(params, Qsymb_pre, Qsymb_data, Qsymb_pilot, Nsymb_ofdm);
 
 % 4. Channel propagation: 
-% signal_rx = channel_propagation(params,signal_tx,SNR,STO,CFO,Nr);
+signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
 
 
 

@@ -116,58 +116,58 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         %S=reshape(S,N_active_subcrr,Nsymb_ofdm+2);
         S=S.';
         
-    %     % CFO tracking
+        % CFO tracking
          S_pilots = S(:,3:end);
-    %     
-    %     S_pilots_1 = S_pilots(1:size(S_pilots,1)/2 ,:);
-    %     S_pilots_2 = S_pilots(size(S_pilots,1)/2 +1:end,:);
-    %     
-    %     S_pilots_1 = reshape(S_pilots_1,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
-    %     S_pilots_2 = reshape(S_pilots_2,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
-    %     
-    %     % Extracting the recieved pilots
-    %     pilots_rx_1 = S_pilots_1(1,:,:);
-    %     pilots_rx_2 = S_pilots_2(end,:,:);
-    %     
-    %     pilots_rx_1 = reshape(pilots_rx_1,[],Nsymb_ofdm);
-    %     pilots_rx_2 = reshape(pilots_rx_2,[],Nsymb_ofdm);
-    %     
-    %     pilots_rx = vertcat(pilots_rx_1,pilots_rx_2);   % Received pilots
-    %     
-    %     S_pilots_1 = S_pilots_1(2:end,:,:);
-    %     S_pilots_2 = S_pilots_2(1:end-1,:,:);
-    %     
-    %     S_pilots_1 = reshape(S_pilots_1,[],Nsymb_ofdm);
-    %     S_pilots_2 = reshape(S_pilots_2,[],Nsymb_ofdm);
-    %     
-    %     S_pilots = vertcat(S_pilots_1,S_pilots_2);  % Message without pilots
-    %     
-    %     % Find impulse responses corresponding to pilot frequencies
-    %     H_pilots_1 = Ht(1:size(Ht,1)/2 ,:);
-    %     H_pilots_2 = Ht(size(Ht,1)/2 +1:end,:);
-    %     
-    %     H_pilots_1 = reshape(H_pilots_1,[],params.ofdm.N_pilots/2);
-    %     H_pilots_2 = reshape(H_pilots_2,[],params.ofdm.N_pilots/2);
-    %     
-    %     H_pilots_1 = H_pilots_1(1,:);
-    %     H_pilots_2 = H_pilots_2(end,:);
-    %     
-    %     H_pilots_1 = reshape(H_pilots_1,[],1);
-    %     H_pilots_2 = reshape(H_pilots_2,[],1);
-    %     
-    %     H_pilots = vertcat(H_pilots_1,H_pilots_2);
-    %     
-    %     phi = conj(pilots_rx)*pilot;
-    %     phi = angle(sum(phi,1));
-    % 
-    %   
-    %     % P/S conversion
-    % 
-    %     S_pilots = S_pilots.*(kron(exp(1i*phi),ones(size(S_pilots,1),1))); 
-    %     
-    %     S_pilots = reshape(S_pilots,[],1);
-    %        
-    %     symb_rx = S_pilots;
+        
+        S_pilots_1 = S_pilots(1:size(S_pilots,1)/2 ,:);
+        S_pilots_2 = S_pilots(size(S_pilots,1)/2 +1:end,:);
+        
+        S_pilots_1 = reshape(S_pilots_1,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
+        S_pilots_2 = reshape(S_pilots_2,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
+        
+        % Extracting the recieved pilots
+        pilots_rx_1 = S_pilots_1(1,:,:);
+        pilots_rx_2 = S_pilots_2(end,:,:);
+        
+        pilots_rx_1 = reshape(pilots_rx_1,[],Nsymb_ofdm);
+        pilots_rx_2 = reshape(pilots_rx_2,[],Nsymb_ofdm);
+        
+        pilots_rx = vertcat(pilots_rx_1,pilots_rx_2);   % Received pilots
+        
+        S_pilots_1 = S_pilots_1(2:end,:,:);
+        S_pilots_2 = S_pilots_2(1:end-1,:,:);
+        
+        S_pilots_1 = reshape(S_pilots_1,[],Nsymb_ofdm);
+        S_pilots_2 = reshape(S_pilots_2,[],Nsymb_ofdm);
+        
+        S_pilots = vertcat(S_pilots_1,S_pilots_2);  % Message without pilots
+        
+        % Find impulse responses corresponding to pilot frequencies
+        H_pilots_1 = Ht(1:size(Ht,1)/2 ,:);
+        H_pilots_2 = Ht(size(Ht,1)/2 +1:end,:);
+        
+        H_pilots_1 = reshape(H_pilots_1,[],params.ofdm.N_pilots/2);
+        H_pilots_2 = reshape(H_pilots_2,[],params.ofdm.N_pilots/2);
+        
+        H_pilots_1 = H_pilots_1(1,:);
+        H_pilots_2 = H_pilots_2(end,:);
+        
+        H_pilots_1 = reshape(H_pilots_1,[],1);
+        H_pilots_2 = reshape(H_pilots_2,[],1);
+        
+        H_pilots = vertcat(H_pilots_1,H_pilots_2);
+        
+        phi = conj(pilots_rx)*pilot;
+        phi = angle(sum(phi,1));
+    
+      
+        % P/S conversion
+    
+        S_pilots = S_pilots.*(kron(exp(1i*phi),ones(size(S_pilots,1),1))); 
+        
+        S_pilots = reshape(S_pilots,[],1);
+           
+        symb_rx = S_pilots;
         Ssum =+ S_pilots;
         Hsum =+ abs(Ht).^2;
     end
