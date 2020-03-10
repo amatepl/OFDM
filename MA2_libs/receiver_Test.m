@@ -23,7 +23,8 @@
 %
 
 function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
-    k=size(signal_rx,1);   
+%     k=size(signal_rx,1);
+    k = 1;
     for i=1:k
         signalrx = signal_rx(i,1:end-mod(size(signal_rx,2),32));
 
@@ -107,6 +108,7 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         grid on;
         title("Time domain channel estimation (Time domain)");
 
+        N_pilots = 126;
 
         Htcirc = toeplitz(Ht, [Ht(1,1); zeros(params.nActiveQ-1,1)]);
         Htm = ones(params.nActiveQ, params.nData +2).*Ht;
@@ -122,8 +124,15 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         S_pilots_1 = S_pilots(1:size(S_pilots,1)/2 ,:);
         S_pilots_2 = S_pilots(size(S_pilots,1)/2 +1:end,:);
         
-        S_pilots_1 = reshape(S_pilots_1,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
-        S_pilots_2 = reshape(S_pilots_2,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
+        Hcomb_1 = Ht(1:size(Ht,1)/2 ,:);
+        Hcomb_2 = Ht(size(Ht,1)/2 +1:end,:);
+        
+        S_pilots_1 = reshape(S_pilots_1,[],Nsymb_ofdm,N_pilots/2);
+        S_pilots_2 = reshape(S_pilots_2,[],Nsymb_ofdm,N_pilots/2);
+        
+        
+        Hcomb_1 = reshape(Hcomb_1,[],N_pilots/2);
+        Hcomb_2 = reshape(Hcomb_2,[],N_pilots/2);
         
         % Extracting the recieved pilots
         pilots_rx_1 = S_pilots_1(1,:,:);
@@ -137,17 +146,25 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         S_pilots_1 = S_pilots_1(2:end,:,:);
         S_pilots_2 = S_pilots_2(1:end-1,:,:);
         
+        Hcomb_1 = Hcomb_1(2:end,:);
+        Hcomb_2 = Hcomb_2(1:end-1,:);
+        
         S_pilots_1 = reshape(S_pilots_1,[],Nsymb_ofdm);
         S_pilots_2 = reshape(S_pilots_2,[],Nsymb_ofdm);
         
+        Hcomb_1 = reshape(Hcomb_1,[],1);
+        Hcomb_2 = reshape(Hcomb_2,[],1);
+        
         S_pilots = vertcat(S_pilots_1,S_pilots_2);  % Message without pilots
+        
+        Hcomb = vertcat(Hcomb_1,Hcomb_2);   % Impulse response for message symbols subcarriers
         
         % Find impulse responses corresponding to pilot frequencies
         H_pilots_1 = Ht(1:size(Ht,1)/2 ,:);
         H_pilots_2 = Ht(size(Ht,1)/2 +1:end,:);
         
-        H_pilots_1 = reshape(H_pilots_1,[],params.ofdm.N_pilots/2);
-        H_pilots_2 = reshape(H_pilots_2,[],params.ofdm.N_pilots/2);
+        H_pilots_1 = reshape(H_pilots_1,[],N_pilots/2);
+        H_pilots_2 = reshape(H_pilots_2,[],N_pilots/2);
         
         H_pilots_1 = H_pilots_1(1,:);
         H_pilots_2 = H_pilots_2(end,:);
@@ -165,14 +182,14 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
         S_pilots = S_pilots.*(kron(exp(1i*phi),ones(size(S_pilots,1),1))); 
         
-        S_pilots = reshape(S_pilots,[],1);
+%         S_pilots = reshape(S_pilots,[],1);
            
-        symb_rx = S_pilots;
+%         symb_rx = S_pilots;
         Ssum =+ S_pilots;
-        Hsum =+ abs(Ht).^2;
+        Hsum =+ abs(Hcomb).^2;
     end
     
-    Scomb= Ssum./(Hsum.*ones(params.nActiveQ, Nsymb_ofdm));
+    Scomb= Ssum./(Hsum.*ones(params.nActiveQ-N_pilots, Nsymb_ofdm));
     Scomb = reshape(Scomb,[],1);
 
     %     figure, hold on;

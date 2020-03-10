@@ -108,7 +108,7 @@ for i=1:k
     
     S_pilots = vertcat(S_pilots_1,S_pilots_2);  % Message without pilots
     
-    Hcomb = vertcat(Hcomb_1,Hcomb_2);
+    Hcomb = vertcat(Hcomb_1,Hcomb_2);   % Impulse response for message symbols subcarriers
     
     
     % Find impulse responses corresponding to pilot frequencies
@@ -124,7 +124,7 @@ for i=1:k
     H_pilots_1 = reshape(H_pilots_1,[],1);
     H_pilots_2 = reshape(H_pilots_2,[],1);
     
-    H_pilots = vertcat(H_pilots_1,H_pilots_2);
+    H_pilots = vertcat(H_pilots_1,H_pilots_2);  % Impulse response of pilot's subcarriers 
     
     phi = conj(pilots_rx).*(H_pilots.*ones(size(pilots_rx)).*pilot);
     

@@ -90,7 +90,7 @@ function [signal_tx] = transmitter_Test(params, symb_pre,symb_tx, symb_pilot)
     
     inactSubRem(params.ActiveQIndex,:) =  symb_tx_parallel;
     
-    symb_tx_parallel = inactSubRem;
+    symb_tx_parallel = (inactSubRem);
     
     % IFFT
     symb_tx_parallel = ifft(symb_tx_parallel,[],1);
@@ -104,7 +104,7 @@ function [signal_tx] = transmitter_Test(params, symb_pre,symb_tx, symb_pilot)
     
     % Add zeros
     
-    
+    signal_tx = padarray(signal_tx,[0 5120],0,'post');
     
     % ---------------------------------------------------------------------
     % 'simple_ofdm_Tx': Implements a simple ofdm transmitter: S/P, IFFT, CP
