@@ -24,10 +24,12 @@
 %                       3 6 9
 %  dim(1,Nsymb_qam) <=> dim(N_subcrr,Nsymb_ofdm)
 
-function [signal_tx] = transmitter(params, symb_pre,symb_tx, symb_pilot)
+function [signal_tx] = transmitter_Test(params, symb_pre,symb_tx, symb_pilot)
     
     % Serial to parallel converter
 %     symb_tx_parallel = reshape(symb_tx,params.ofdm.N_subcrr,Nsymb_ofdm);
+
+    N_pilots = 126;
 
     symb_tx = reshape(symb_tx,[],params.nData);
     
@@ -35,8 +37,8 @@ function [signal_tx] = transmitter(params, symb_pre,symb_tx, symb_pilot)
     symb_tx_1 = symb_tx(1:size(symb_tx)/2,:);
     symb_tx_2 = symb_tx(size(symb_tx)/2+1:end,:);
     
-    symb_tx_1 = reshape(symb_tx_1,[],params.nData,params.ofdm.N_pilots/2);
-    symb_tx_2 = reshape(symb_tx_2,[],params.nData,params.ofdm.N_pilots/2);
+    symb_tx_1 = reshape(symb_tx_1,[],params.nData,N_pilots/2);
+    symb_tx_2 = reshape(symb_tx_2,[],params.nData,N_pilots/2);
     
     symb_tx_1 = padarray(symb_tx_1,[1 0 0],symb_pilot,'pre');
     symb_tx_2 = padarray(symb_tx_2,[1 0 0],symb_pilot,'post');
@@ -75,17 +77,20 @@ function [signal_tx] = transmitter(params, symb_pre,symb_tx, symb_pilot)
    
     
 
-    symb_tx_parallel = vertcat(symb_tx_parallel(1:(params.nActiveQ)/2,:),...
-                                zeros(1,params.nData+params.nPreamble),...
-                                symb_tx_parallel(end - (params.nActiveQ)/2 +1:end,:));
+%     symb_tx_parallel = vertcat(symb_tx_parallel(1:(params.nActiveQ)/2,:),...
+%                                 zeros(1,params.nData+params.nPreamble),...
+%                                 symb_tx_parallel(end - (params.nActiveQ)/2 +1:end,:));
+% 
+%     symb_tx_parallel = vertcat(zeros((N_inactive_subcrr)/2 -1,params.nData+params.nPreamble),...
+%                                symb_tx_parallel,...
+%                                zeros((N_inactive_subcrr)/2,params.nData+params.nPreamble));
 
-    symb_tx_parallel = vertcat(zeros((N_inactive_subcrr)/2 -1,params.nData+params.nPreamble),...
-                               symb_tx_parallel,...
-                               zeros((N_inactive_subcrr)/2,params.nData+params.nPreamble));
-
     
+    inactSubRem = zeros(params.Q,params.nData + params.nPreamble);
     
+    inactSubRem(params.ActiveQIndex,:) =  symb_tx_parallel;
     
+    symb_tx_parallel = inactSubRem;
     
     % IFFT
     symb_tx_parallel = ifft(symb_tx_parallel,[],1);
