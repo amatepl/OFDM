@@ -96,16 +96,16 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
 
         figure, hold on;
         fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
-        plot(fq,abs(fftshift(Ht)));
+%         plot(fq,abs(fftshift(Ht,params.nActiveQ)));
+        plot(fq,abs(Ht,params.nActiveQ)));
         grid on;
         title("Time domain channel estimation");
         
         figure, hold on;
         fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
-        ht = ifftshift(ifft(Ht,params.nActiveQ));
-        plot(fq,10*log10(ht));
+        plot(fq,abs(ifftshift(ifft(Ht))));
         grid on;
-        title("Time domain channel estimation (Time domain)");
+        title("Time domain channel estimation");
 
 
         Htcirc = toeplitz(Ht, [Ht(1,1); zeros(params.nActiveQ-1,1)]);

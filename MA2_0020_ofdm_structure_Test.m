@@ -31,9 +31,44 @@ signal_rx = load('sig_rx.mat'); % load singal_rx
 signal_rx = signal_rx.sig_rx;
 
 
-% -------------------------------------------------------------------------
+%% --- Local parameters
+SNR = 20;                           % Wanted SNR in dB
+STO = 100;                           % Time offset (switching unit vector)
+% delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
+CFO = 10e-6;                        % Carrier frequency offset
+% Nsymb_ofdm = 2;                   % number OFDM symbols to transmit
+Nsymb_ofdm = params.nData;    % number OFDM symbols to transmit
+Nr = 2;                             % number of receivers
+
+Nbps = params.modulation.Nbps;      % QAM modulation
+%Nbps = 1;                          % BPSK modulation
+% Number of bits knowing the inactive subcarriers and the number of pilots
+Nbits = Nsymb_ofdm * (params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr- params.ofdm.N_pilots) * Nbps;
+
+
+%% ------------------------------------------------------------------------
 % ------------------- OFDM Communication Chain ----------------------------
 % -------------------------------------------------------------------------
+
+% 1. Message, preamble and pilot construction
+[Preamble, bits_data, bits_pilot] = build_message(params,Nbits,Nbps);
+
+%bits_tx = vertcat(Preamble,bits_data);
+ bits_tx = bits_data;
+ 
+% 2. Modulation of the preamble, message and pilot
+[Qsymb_pre] = modulation(Nbps,Preamble,'bpsk');      % Preamble modulation
+[Qsymb_data] = modulation(Nbps,bits_data,'bpsk');    % Message modulation
+[Qsymb_pilot] = modulation(Nbps,bits_pilot,'bpsk');  % Pilot modulation
+% OFDM symbols [2 x preamble + message,1]
+Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);             
+
+% 3. OFDM Transmitter: 
+[signal_tx] = transmitter(params, Qsymb_pre, Qsymb_data, Qsymb_pilot, Nsymb_ofdm);
+
+% 4. Channel propagation: 
+% signal_rx = channel_propagation(params,signal_tx,SNR,STO,CFO,Nr);
+
 
 
 % 4. OFDM Receiver:
@@ -78,6 +113,6 @@ bits_rx = demodulation(params,Qsymb_rx,'bpsk');
 % subplot(1,2,2); plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
 % title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
 
-figure;
-plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
+% figure;
+% plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
 % title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
