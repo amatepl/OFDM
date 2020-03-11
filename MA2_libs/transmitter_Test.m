@@ -92,6 +92,13 @@ function [signal_tx] = transmitter_Test(params, symb_pre,symb_tx, symb_pilot)
     
     symb_tx_parallel = (inactSubRem);
     
+    
+%     figure, hold on;
+%     fq = -params.Q/2:1:params.Q/2-1;
+%     plot(fq,abs((symb_tx_parallel(:,1))));
+%     grid on;
+%     title("signal tx with CFO and STO correction applied");
+    
     % IFFT
     symb_tx_parallel = ifft(symb_tx_parallel,[],1);
    % symb_tx_parallel = ifftshift(symb_tx_parallel);

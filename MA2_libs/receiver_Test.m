@@ -23,14 +23,19 @@
 %
 
 function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
-%     k=size(signal_rx,1);
-    k = 1;
+    k=size(signal_rx,1);
+%     k = 1;
+
+    figure, hold on;
+    grid on;
+    title("signal rx with CFO and STO correction applied");
+
+
     for i=1:k
         signalrx = signal_rx(i,1:end-mod(size(signal_rx,2),32));
 
         % S/P conversion
-        %s = reshape(signal_rx,length(signal_rx)/Nsymb_ofdm,Nsymb_ofdm+2);
-        s = reshape(signalrx,[],Nsymb_ofdm+2);
+        s = reshape(signalrx,[],Nsymb_ofdm+params.nPreamble);
 
         % CP removal
         s=s(params.LCP+1:end,:);
@@ -38,23 +43,13 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         %FFT
         S=fft(s(:,1:end),params.Q);
 
-    %     figure, hold on;
-    %     fq = -params.Q/2:1:params.Q/2-1;
-    %     plot(fq,abs(ifftshift(S(:,1))));
-    %     grid on;
-    %     title("signal rx with CFO and STO correction applied");
+        fq = -params.Q/2:1:params.Q/2-1;
+        plot(fq,abs(ifftshift(S(:,1))));
 
         % Inactive subcarriers removal
 
-        N_inactive_subcrr = params.Q - params.nActiveQ;
-    %     S = S((N_inactive_subcrr)/2 :end - (N_inactive_subcrr)/2 ,:); %
-    %     Borders removal
-    %     N_active_subcrr = params.Q - params.ofdm.N_inactive_subcrr;   
-
-    %     S = vertcat(S(1:(params.nActiveQ)/2,:),S(end - (params.nActiveQ)/2
-    %     +1:end,:));  % zero removal
-
         S = S(params.ActiveQIndex,:);
+        
 
 %         figure, hold on;
 %         fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
@@ -76,18 +71,16 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         Hm = ones(params.nActiveQ, params.nData +2).*H;
         Sm = S./Hm;
 
-        figure, hold on;
-        fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
-        plot(fq,abs(fftshift(H)));
-        grid on;
-        title("Frequency domain channel estimation");
-
+%         figure, hold on;
+%         fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
+%         plot(fq,abs(fftshift(H)));
+%         grid on;
+%         title("Frequency domain channel estimation");
 
         %Channel estimation in time domain
         a=lambda'*S(:,2);
 
         ht = dftmtx(params.nActiveQ)'*(lambda')*lambda*dftmtx(params.nActiveQ);
-
 
         ht = ht\ifft(a,params.nActiveQ);
         Ht=fft(ht(1:end,1),params.nActiveQ); 
@@ -95,25 +88,25 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
 
         %Channel equalization
 
-        figure, hold on;
-        fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
-        plot(fq,abs(fftshift(Ht)));
-        grid on;
-        title("Time domain channel estimation");
+%         figure, hold on;
+%         fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
+%         plot(fq,abs(fftshift(Ht)));
+%         grid on;
+%         title("Time domain channel estimation");
         
-        figure, hold on;
-        fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
-        ht = ifftshift(ifft(Ht,params.nActiveQ));
-        plot(fq,10*log10(ht));
-        grid on;
-        title("Time domain channel estimation (Time domain)");
+%         figure, hold on;
+%         fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
+%         ht = ifftshift(ifft(Ht,params.nActiveQ));
+%         plot(fq,10*log10(ht));
+%         grid on;
+%         title("Time domain channel estimation (Time domain)");
 
         N_pilots = 126;
 
         Htcirc = toeplitz(Ht, [Ht(1,1); zeros(params.nActiveQ-1,1)]);
         Htm = ones(params.nActiveQ, params.nData +2).*Ht;
 
-        S=S.';%reshape(S,Nsymb_ofdm+2,N_active_subcrr);
+        S=S.';  % reshape(S,Nsymb_ofdm+2,N_active_subcrr);
         S=S*diag(Ht)';
         %S=reshape(S,N_active_subcrr,Nsymb_ofdm+2);
         S=S.';
@@ -129,8 +122,7 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         
         S_pilots_1 = reshape(S_pilots_1,[],Nsymb_ofdm,N_pilots/2);
         S_pilots_2 = reshape(S_pilots_2,[],Nsymb_ofdm,N_pilots/2);
-        
-        
+              
         Hcomb_1 = reshape(Hcomb_1,[],N_pilots/2);
         Hcomb_2 = reshape(Hcomb_2,[],N_pilots/2);
         
@@ -160,19 +152,19 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         Hcomb = vertcat(Hcomb_1,Hcomb_2);   % Impulse response for message symbols subcarriers
         
         % Find impulse responses corresponding to pilot frequencies
-        H_pilots_1 = Ht(1:size(Ht,1)/2 ,:);
-        H_pilots_2 = Ht(size(Ht,1)/2 +1:end,:);
-        
-        H_pilots_1 = reshape(H_pilots_1,[],N_pilots/2);
-        H_pilots_2 = reshape(H_pilots_2,[],N_pilots/2);
-        
-        H_pilots_1 = H_pilots_1(1,:);
-        H_pilots_2 = H_pilots_2(end,:);
-        
-        H_pilots_1 = reshape(H_pilots_1,[],1);
-        H_pilots_2 = reshape(H_pilots_2,[],1);
-        
-        H_pilots = vertcat(H_pilots_1,H_pilots_2);
+%         H_pilots_1 = Ht(1:size(Ht,1)/2 ,:);
+%         H_pilots_2 = Ht(size(Ht,1)/2 +1:end,:);
+%         
+%         H_pilots_1 = reshape(H_pilots_1,[],N_pilots/2);
+%         H_pilots_2 = reshape(H_pilots_2,[],N_pilots/2);
+%         
+%         H_pilots_1 = H_pilots_1(1,:);
+%         H_pilots_2 = H_pilots_2(end,:);
+%         
+%         H_pilots_1 = reshape(H_pilots_1,[],1);
+%         H_pilots_2 = reshape(H_pilots_2,[],1);
+%         
+%         H_pilots = vertcat(H_pilots_1,H_pilots_2);
         
         phi = conj(pilots_rx)*pilot;
         phi = angle(sum(phi,1));
@@ -182,9 +174,6 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     
         S_pilots = S_pilots.*(kron(exp(1i*phi),ones(size(S_pilots,1),1))); 
         
-%         S_pilots = reshape(S_pilots,[],1);
-           
-%         symb_rx = S_pilots;
         Ssum =+ S_pilots;
         Hsum =+ abs(Hcomb).^2;
     end
@@ -192,18 +181,20 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     Scomb= Ssum./(Hsum.*ones(params.nActiveQ-N_pilots, Nsymb_ofdm));
     Scomb = reshape(Scomb,[],1);
 
-    %     figure, hold on;
-    %     fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
-    %     plot(fq,abs(fftshift(Hm(:,1))));
-    %     grid on;
-    %     title("Frequency domain estiamtion");
-    %     
-    %     figure, hold on;
-    %     plot(fq,abs(fftshift(Htm(:,1))));
-    %     grid on;
-    %     title("Time domain estiamtion")
+    
+    
+    figure, hold on;
+    fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
+    plot(fq,abs(fftshift(H)));
+    grid on;
+    title("Frequency domain estiamtion");
 
-        symb_rx = Scomb;
+    figure, hold on;
+    plot(fq,abs(fftshift(Ht)));
+    grid on;
+    title("Time domain estiamtion")
+
+    symb_rx = Scomb;
 
 
         % ---------------------------------------------------------------------
