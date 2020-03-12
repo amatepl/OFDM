@@ -27,8 +27,11 @@ cfg = load('TestParam.mat');   % load configFile
 params = cfg.TestParam;                    % get the set of parameters
 dispConfigFile_Test(params);                 % display the parameters
 
-signal_rx = load('sig_rx.mat'); % load singal_rx
-signal_rx = signal_rx.sig_rx;
+% signal_rx = load('sig_rx.mat'); % load singal_rx
+% signal_rx = signal_rx.sig_rx;
+
+signal_rx_los = load('../ma2/ma2_g1_los_rx.mat'); % load singal_rx
+signal_rx_los = signal_rx_los.ma2_g1_los_rx;
 
 
 %% --- Local parameters
@@ -38,7 +41,7 @@ STO = 100;                           % Time offset (switching unit vector)
 CFO = 10e-6;                        % Carrier frequency offset
 % Nsymb_ofdm = 2;                   % number OFDM symbols to transmit
 Nsymb_ofdm = params.nData;    % number OFDM symbols to transmit
-Nr = 2;                             % number of receivers
+Nr = 1;                             % number of receivers
 
 % Nbps = params.modulation.Nbps;      % QAM modulation
 Nbps = 1;                          % BPSK modulation
@@ -68,8 +71,8 @@ Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);
 [signal_tx] = transmitter_Test(params, Qsymb_pre, Qsymb_data, Qsymb_pilot);
 
 % 4. Channel propagation: 
-signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
-
+% signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
+signal_rx = signal_rx_los(3,:);
 
 
 % 4. OFDM Receiver:
@@ -114,6 +117,6 @@ bits_rx = demodulation(params,Qsymb_rx,'bpsk');
 % subplot(1,2,2); plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
 % title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
 
-% figure;
-% plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
-% title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
+figure;
+plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
+title('Rx bpsk constellation');grid on;% axis([-2,2,-2,2]);pbaspect([1 1 1])

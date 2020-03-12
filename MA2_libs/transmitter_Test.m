@@ -90,7 +90,14 @@ function [signal_tx] = transmitter_Test(params, symb_pre,symb_tx, symb_pilot)
     
     inactSubRem(params.ActiveQIndex,:) =  symb_tx_parallel;
     
-    symb_tx_parallel = inactSubRem;
+    symb_tx_parallel = (inactSubRem);
+    
+    
+%     figure, hold on;
+%     fq = -params.Q/2:1:params.Q/2-1;
+%     plot(fq,abs((symb_tx_parallel(:,1))));
+%     grid on;
+%     title("signal tx with CFO and STO correction applied");
     
     % IFFT
     symb_tx_parallel = ifft(symb_tx_parallel,[],1);
@@ -104,7 +111,7 @@ function [signal_tx] = transmitter_Test(params, symb_pre,symb_tx, symb_pilot)
     
     % Add zeros
     
-    
+    signal_tx = padarray(signal_tx,[0 5120],0,'post');
     
     % ---------------------------------------------------------------------
     % 'simple_ofdm_Tx': Implements a simple ofdm transmitter: S/P, IFFT, CP
