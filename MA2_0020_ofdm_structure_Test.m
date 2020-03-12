@@ -65,7 +65,7 @@ Nbits = Nsymb_ofdm * (params.nActiveQ - N_pilots) * Nbps;
 Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);             
 
 % 3. OFDM Transmitter: 
-[signal_tx] = transmitter(params, Qsymb_pre, Qsymb_data, Qsymb_pilot, Nsymb_ofdm);
+[signal_tx] = transmitter_Test(params, Qsymb_pre, Qsymb_data, Qsymb_pilot);
 
 % 4. Channel propagation: 
 signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);

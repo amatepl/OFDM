@@ -23,6 +23,8 @@
 %
 
 function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
+    N_pilots = 126;
+    Hcomb = zeros(params.nActiveQ,1);
     k=size(signal_rx,1);   
     for i=1:k
         signalrx = signal_rx(i,1:end-mod(size(signal_rx,2),32));
@@ -117,13 +119,13 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         S=S.';
         
         % CFO tracking
-         S_pilots = S(:,3:end);
+        S_pilots = S(:,3:end);
         
         S_pilots_1 = S_pilots(1:size(S_pilots,1)/2 ,:);
         S_pilots_2 = S_pilots(size(S_pilots,1)/2 +1:end,:);
         
-        S_pilots_1 = reshape(S_pilots_1,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
-        S_pilots_2 = reshape(S_pilots_2,[],Nsymb_ofdm,params.ofdm.N_pilots/2);
+        S_pilots_1 = reshape(S_pilots_1,[],Nsymb_ofdm,N_pilots/2);
+        S_pilots_2 = reshape(S_pilots_2,[],Nsymb_ofdm,N_pilots/2);
         
         % Extracting the recieved pilots
         pilots_rx_1 = S_pilots_1(1,:,:);
@@ -146,8 +148,8 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         H_pilots_1 = Ht(1:size(Ht,1)/2 ,:);
         H_pilots_2 = Ht(size(Ht,1)/2 +1:end,:);
         
-        H_pilots_1 = reshape(H_pilots_1,[],params.ofdm.N_pilots/2);
-        H_pilots_2 = reshape(H_pilots_2,[],params.ofdm.N_pilots/2);
+        H_pilots_1 = reshape(H_pilots_1,[],N_pilots/2);
+        H_pilots_2 = reshape(H_pilots_2,[],N_pilots/2);
         
         H_pilots_1 = H_pilots_1(1,:);
         H_pilots_2 = H_pilots_2(end,:);
@@ -166,10 +168,9 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         S_pilots = S_pilots.*(kron(exp(1i*phi),ones(size(S_pilots,1),1))); 
         
         S_pilots = reshape(S_pilots,[],1);
-           
-        symb_rx = S_pilots;
+        
         Ssum =+ S_pilots;
-        Hsum =+ abs(Ht).^2;
+        Hsum =+ abs(Hcomb).^2;
     end
     
     Scomb= Ssum./(Hsum.*ones(params.nActiveQ, Nsymb_ofdm));
