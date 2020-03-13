@@ -29,7 +29,7 @@ function [signal_tx] = transmitter_Test(params, symb_pre,symb_tx, symb_pilot)
     % Serial to parallel converter
 %     symb_tx_parallel = reshape(symb_tx,params.ofdm.N_subcrr,Nsymb_ofdm);
 
-    N_pilots = 126;
+    N_pilots = params.N_pilots;
 
     symb_tx = reshape(symb_tx,[],params.nData);
     
@@ -110,8 +110,8 @@ function [signal_tx] = transmitter_Test(params, symb_pre,symb_tx, symb_pilot)
     signal_tx = reshape(symb_tx_parallel,1,[]);
     
     % Add zeros
-    
-    signal_tx = padarray(signal_tx,[0 5120],0,'post');
+    N_zeros = params.N_zeros*(params.Q+params.LCP);
+    signal_tx = padarray(signal_tx,[0 N_zeros],0,'post');
     
     % ---------------------------------------------------------------------
     % 'simple_ofdm_Tx': Implements a simple ofdm transmitter: S/P, IFFT, CP

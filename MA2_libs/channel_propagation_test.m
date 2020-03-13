@@ -16,23 +16,32 @@
 
 function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     % **** YOUR CODE GOES HERE!!
-    % Multipath component:
+    % 1. Some constants:
+    lambda = physconst('LightSpeed')/params.Fc;
+    beta = 2*pi/lambda;
     Lcp = params.LCP;
     Q = params.Q;
+    
+    % 2. Multipath component
+    % Reshape the signal tx in a matrix 
     signal_tx_col = reshape(signal_tx,Lcp+Q,[]);
+    % Creation of the impulse response matrix
     impulse_response = zeros(Lcp+Q,Nr);
-    impulse_response(1,1:end) = ones(1,Nr);
-    %a = (rand(1,Lcp+Q-1)).';
-    a = 0.5*rand(1,Nr);
-    %phi = 2*pi*(randn(1,Lcp+Q-1)).';
-    phi = 2*pi*randn(1,Nr);
-    % phi = 0;
-    % map it to the range [0,2*pi]
-    phi = mod(phi,2*pi);
-    %impulse_response(randi([1,Lcp+Q])) = a*exp(1i*phi);
-    %impulse_response(3,1:end) = a.*exp(1i*phi);
+    a = ones(2,Nr);                                   % attenuation factor
+    a(2,:) = 0.5*a(2,:);
+    phi = 2*pi*rand(2,Nr);                            % random phase
+    phi = mod(phi,2*pi);                              % map it to the range [0,2*pi]
+    z = lambda*(linspace(0,Nr-1,Nr)/2-(Nr-1)/4);      % z coordinate in the local zone
+    u = ones(2,Nr);                                   % angular transmission
+    u(1,:) = beta*cos(pi/6)*u(1,:);
+    u(2,:) = beta*cos(2*pi/3)*u(2,:);
+    impulse_response(1,:) = a(1,:);
+    %impulse_response(1,:) = a(1,:).*exp(1i*phi(1,:)).*exp(1i*u(1,:).*z);
+    impulse_response(4,:) = a(2,:).*exp(1i*phi(2,:)).*exp(1i*u(2,:).*z);
     impulse_matrix = convolutionMatrix(impulse_response,Nr);
-    signal_rx_SIMO = zeros(size(signal_tx_col,1),size(signal_tx_col,2),1);
+    
+    % Convolution of the signal with the impulse matrix
+    signal_rx_SIMO = zeros(size(signal_tx_col,1),size(signal_tx_col,2));
     signal_rx = zeros(Nr,size(signal_rx_SIMO,1)*size(signal_rx_SIMO,2));
     
     for i = 1:Nr
@@ -43,16 +52,15 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     clear signal_rx_SIMO;
     clear impulse_response;
     
-    % Noise
+    % 3. Noise computation
     transmitted_energy = norm(signal_tx(:))^2;           % energy of the signal
     noise_energy = transmitted_energy/(10^(SNR/10));     % energy of noise
     noise_var = noise_energy/(length(signal_tx(:))-1);   % variance of noise to be added
     noise_std = sqrt(noise_var/2);                       % std. deviation of noise to be added
     noise = noise_std*(randn(length(signal_tx),Nr)+1i*randn(length(signal_tx),Nr));      % noise
     
-    % STO
-    % signal_rx = signal_tx;
-    signal_rx = [signal_rx(:,end-STO+1:end), signal_rx(:,1:end-STO)];
+    % 4. STO addition
+    signal_rx = [zeros(Nr,STO), signal_rx(:,1:end-STO)];
     %signal_rx = [signal_rx(end-STO+1:end,:); signal_rx(1:end-STO,:)];    
     % Frequency offset (CFO)
     
