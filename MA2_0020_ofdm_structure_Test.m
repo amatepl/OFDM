@@ -33,6 +33,9 @@ dispConfigFile_Test(params);                 % display the parameters
 signal_rx_los = load('../ma2/ma2_g1_los_rx.mat'); % load singal_rx
 signal_rx_los = signal_rx_los.ma2_g1_los_rx;
 
+sig_tx = load('../ma2/sig_tx.mat'); % load singal_rx
+sig_tx = sig_tx.sig_tx;
+
 
 %% --- Local parameters
 SNR = 20;                           % Wanted SNR in dB
@@ -72,7 +75,10 @@ Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);
 
 % 4. Channel propagation: 
 % signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
-signal_rx = signal_rx_los(3,:);
+signal_rx = signal_rx_los(1,:);
+
+figure, hold on,
+plot(abs(signal_rx));
 
 
 % 4. OFDM Receiver:
@@ -95,7 +101,7 @@ signal_rx = signal_rx(STO_estimated+1:STO_estimated+Nsymb);
 Qsymb_pre = params.PreambleSymbols;
 Qsymb_pre = Qsymb_pre(params.ActiveQIndex); % Removing inactive subcarriers
 
-Qsymb_pilot = 0;
+% Qsymb_pilot = 0;
 
 Qsymb_rx = receiver_Test(params,signal_rx,params.nData, Qsymb_pre,Qsymb_pilot);
 

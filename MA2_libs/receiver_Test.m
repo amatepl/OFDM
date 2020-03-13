@@ -29,6 +29,7 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
     figure, hold on;
     grid on;
     title("signal rx with CFO and STO correction applied");
+    plot(abs(signal_rx));
 
 
     for i=1:k
