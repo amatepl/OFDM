@@ -1,4 +1,4 @@
-function [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx)
+function [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,maxiter,preamble)
     k=size(signal_rx,1); 
     STO_estimated=zeros(k,1);
     CFO_estimated = zeros(k,1);
@@ -35,12 +35,11 @@ function [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx
 %     
 %         n = abs(An)./(vecnorm(M).^2);
         
-        for j=1:174080
-            An(j) = signalrx(j:N+j-1)*(signalrx(N+j:(2*N)+j-1)');
-            n(j) = norm(An(j))/norm(signalrx(j:(2*N)+j))^2;
+        for j=1:maxiter
+            %An(j) = signalrx(j:N+j-1)*(signalrx(N+j:(2*N)+j-1)');
+            An(j) = signalrx(j:N+j-1)*(preamble');
+            n(j) = abs(An(j))/norm(signalrx(j:(2*N)+j))^2;
         end
-        figure;
-        plot(n);
         
         STO_estimated(i) = find(n==max(n))-1;
         CFO_estimated(i) = angle(An(STO_estimated(i)+1))/(T*N);

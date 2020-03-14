@@ -42,44 +42,35 @@ Nr = 4;                             % number of receivers
 Nbps = 1;                          % BPSK modulation
 % Number of bits knowing the inactive subcarriers and the number of pilots
 Nbits = Nsymb_ofdm * (params.nActiveQ - params.N_pilots) * Nbps;
-
-signal_rx_los = load('../ma2/ma2_g1_los_rx.mat'); % load singal_rx
-signal_rx_los = signal_rx_los.ma2_g1_los_rx;
-
-signal_tx = load('../ma2/sig_tx.mat').sig_tx; % load singal_rx
-Qsymb_pilot = -1;
-
-preamble = signal_tx(params.LCP+1:end,1:2);
-Qsymb_pre=fft(preamble(:,1:end),params.Q);
-Qsymb_pre = Qsymb_pre(params.ActiveQIndex,:);
+frame_size = (params.nPreamble+params.nData+params.N_zeros)*(params.Q+params.LCP);
+Nsymb = (params.Q+params.LCP)*(params.nData+params.nPreamble);
 
 
 %% ------------------------------------------------------------------------
 % ------------------- OFDM Communication Chain ----------------------------
 % -------------------------------------------------------------------------
 
-% % 1. Message, preamble and pilot construction
-% [Preamble, bits_data, bits_pilot] = build_message_test(params,Nbits,Nbps);
-% 
-% %bits_tx = vertcat(Preamble,bits_data);
-% bits_tx = bits_data;
-%  
-% % 2. Modulation of the preamble, message and pilot
-% [Qsymb_pre] = modulation(Nbps,Preamble,'bpsk');      % Preamble modulation
-% [Qsymb_data] = modulation(Nbps,bits_data,'bpsk');    % Message modulation
-% [Qsymb_pilot] = modulation(Nbps,bits_pilot,'bpsk');  % Pilot modulation
-% % OFDM symbols [2 x preamble + message,1]
-% Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);             
-% 
-% % 3. OFDM Transmitter: 
-% [signal_tx] = transmitter_Test(params, Qsymb_pre, Qsymb_data, Qsymb_pilot);
+% 1. Message, preamble and pilot construction
+[Preamble, bits_data, bits_pilot] = build_message_test(params,Nbits,Nbps);
+
+%bits_tx = vertcat(Preamble,bits_data);
+bits_tx = bits_data;
+ 
+% 2. Modulation of the preamble, message and pilot
+[Qsymb_pre] = modulation(Nbps,Preamble,'bpsk');      % Preamble modulation
+[Qsymb_data] = modulation(Nbps,bits_data,'bpsk');    % Message modulation
+[Qsymb_pilot] = modulation(Nbps,bits_pilot,'bpsk');  % Pilot modulation
+% OFDM symbols [2 x preamble + message,1]
+Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);             
+
+% 3. OFDM Transmitter: 
+[signal_tx] = transmitter_Test(params, Qsymb_pre, Qsymb_data, Qsymb_pilot);
+preambleLCP = signal_tx(:,1:params.Q+params.LCP);
 
 % % 4. Channel propagation: 
-% signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
-Nsymb = (params.Q+params.LCP)*(params.nData+params.nPreamble);
-signal_rx = signal_rx_los(:,1:3*size(signal_rx_los,2)/100);
+signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
 % 4. OFDM Receiver:
-[STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx);
+[STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,params.Q+params.LCP,preambleLCP);
 
 %Average over the antennas
 STO_estimated = round(mean(STO_estimated,'all'));
@@ -89,7 +80,7 @@ signal_rx = signal_rx(:,STO_estimated+1:STO_estimated+Nsymb);
 
 T = 1/params.B;
 n = 1:1:Nsymb;
-phi = exp(1i*CFO_estimated*T*n);    
+phi = exp(-1i*CFO_estimated*T*n);    
 signal_rx = signal_rx.*phi;
 
 % signal_rx = horzcat(signal_rx(STO_estimated+1:end),zeros(1,STO_estimated));
@@ -101,23 +92,19 @@ preamble = Qsymb_pre(1:params.nActiveQ);
 bits_rx = demodulation(params,Qsymb_rx,'bpsk');
 
 
-% % -------------------------------------------------------------------------
-% % -------- Displaying results
-% % -------------------------------------------------------------------------
-% % 
-% % bitErrorRate = sum(abs(bits_tx - bits_rx),'all') / length(bits_tx);
-% % disp('$$ Displaying results:');
-% % disp(['BER:', num2str(bitErrorRate)]);
-% % 
-% % figure;
-% % subplot(1,2,1); plot(real(Qsymb_tx),imag(Qsymb_tx),'rx'); 
-% % title('Tx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
-% % subplot(1,2,2); plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
-% % title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
-% % bitErrorRate = sum(abs(bits_tx - bits_rx),'all') / length(bits_tx);
-% % disp('$$ Displaying results:');
-% % disp(['BER:', num2str(bitErrorRate)]);
-% % 
+% -------------------------------------------------------------------------
+% -------- Displaying results
+% -------------------------------------------------------------------------
+
+bitErrorRate = sum(abs(bits_tx - bits_rx),'all') / length(bits_tx);
+disp('$$ Displaying results:');
+disp(['BER:', num2str(bitErrorRate)]);
+
 figure;
-plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
+subplot(1,2,1); plot(real(Qsymb_tx),imag(Qsymb_tx),'rx'); 
+title('Tx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
+subplot(1,2,2); plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
 title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
+bitErrorRate = sum(abs(bits_tx - bits_rx),'all') / length(bits_tx);
+disp('$$ Displaying results:');
+disp(['BER:', num2str(bitErrorRate)]);
