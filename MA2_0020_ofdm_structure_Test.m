@@ -75,10 +75,10 @@ Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);
 
 % 4. Channel propagation: 
 % signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
-signal_rx = signal_rx_los(1,:);
+signal_rx = signal_rx_los(2,:);
 
-figure, hold on,
-plot(abs(signal_rx));
+% figure, hold on,
+% plot(abs(signal_rx));
 
 
 % 4. OFDM Receiver:
