@@ -47,7 +47,6 @@
  end   
  sgtitle('Rice fitting channel frequency response NLOS');
  
- Legend=cell(1,4);
  figure;
  for i=1:4
     plot(x_val,ylos(:,i));
@@ -60,7 +59,6 @@
  legend(Legend);
  title('Rice distribution fitting on channel frequency response LOS');
  
- Legend=cell(1,4);
  figure;
  for i=1:4
     plot(x_val,ynlos(:,i));
@@ -93,7 +91,7 @@
     y(:,i)=pdf(pd,x);
  end
  
- Legend=cell(1,size(idx,1));
+ 
  figure;
  for i=1:size(idx,1)
     plot(x,y(:,i));
@@ -161,44 +159,11 @@ grid on;
 ylabel('PDP')
 xlabel('tau')
 legend('PDP model','PDP')
-title('Power Delay Profile LOS')
+title('Power Delay Profile')
 
-PDPverif=abs(ifft(autocorr(fft(mean(ht,2)))));
+PDPverif=abs(ifft(autocorr(fft(ht))));
 fun = mean((tau.^2).*PDPverif,'all');
 taum =  mean((tau).*PDPverif,'all');
 delay_spread_verif = (sqrt(fun-taum^2));
 coherence_BW_verif = 1/(2*pi*delay_spread_verif);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-PDPnlos = abs(autocorr(mean(ht_nlos,2)));
-tau=0:delta_tau:(length(PDPnlos)-1)*delta_tau;
-
-fun = mean((tau.^2).*PDPnlos,'all');
-taum =  mean((tau).*PDPnlos,'all');
-    
-delay_spread_nlos = (sqrt(fun-taum^2));
-
-Pmodel_nlos =PDPnlos(1)*exp(-tau/(delay_spread_nlos));
-fun = mean((tau.^2).*Pmodel_nlos,'all');
-taum =  mean((tau).*Pmodel_nlos,'all');
-delay_spread_nlos = (sqrt(fun-taum^2));
-coherence_BW_nlos = 1/(2*pi*delay_spread_nlos);
-
-figure;
-plot(Pmodel_nlos);
-hold on;
-plot(PDPnlos);
-hold on;
-grid on;
-ylabel('PDP')
-xlabel('tau')
-legend('PDP model','PDP')
-title('Power Delay Profile NLOS')
-
-PDPverif_nlos=abs(ifft(autocorr(fft(mean(ht_nlos,2)))));
-fun = mean((tau.^2).*PDPverif_nlos,'all');
-taum =  mean((tau).*PDPverif_nlos,'all');
-delay_spread_verif_nlos = (sqrt(fun-taum^2));
-coherence_BW_verif_nlos = 1/(2*pi*delay_spread_verif_nlos);
  
