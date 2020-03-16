@@ -149,8 +149,14 @@ delay_spread = (sqrt(fun-taum^2));
 Pmodel =PDP(1)*exp(-tau/(delay_spread));
 fun = mean((tau.^2).*Pmodel,'all');
 taum =  mean((tau).*Pmodel,'all');
-delay_spread = (sqrt(fun-taum^2));
+delay_spread_model = (sqrt(fun-taum^2));
 coherence_BW = 1/(2*pi*delay_spread);
+
+PDPverif=abs(ifft(autocorr(fft(mean(ht,2)))));
+fun = mean((tau.^2).*PDPverif,'all');
+taum =  mean((tau).*PDPverif,'all');
+delay_spread_verif = (sqrt(fun-taum^2));
+coherence_BW_verif = 1/(2*pi*delay_spread_verif);
 
 figure;
 plot(Pmodel);
@@ -160,14 +166,9 @@ hold on;
 grid on;
 ylabel('PDP')
 xlabel('tau')
-legend('PDP model','PDP')
-title('Power Delay Profile LOS')
+legend(strcat('PDP model: \sigma_T [\mus]= ',num2str(delay_spread_model*10e6)),strcat('PDP: \sigma_T [\mus]= ',num2str(delay_spread*10e6)))
+title(strcat('Power Delay Profile LOS with verification  \sigma_{T_{verif}} [\mus]=', num2str(delay_spread_verif*10e6)))
 
-PDPverif=abs(ifft(autocorr(fft(mean(ht,2)))));
-fun = mean((tau.^2).*PDPverif,'all');
-taum =  mean((tau).*PDPverif,'all');
-delay_spread_verif = (sqrt(fun-taum^2));
-coherence_BW_verif = 1/(2*pi*delay_spread_verif);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -182,8 +183,14 @@ delay_spread_nlos = (sqrt(fun-taum^2));
 Pmodel_nlos =PDPnlos(1)*exp(-tau/(delay_spread_nlos));
 fun = mean((tau.^2).*Pmodel_nlos,'all');
 taum =  mean((tau).*Pmodel_nlos,'all');
-delay_spread_nlos = (sqrt(fun-taum^2));
+delay_spread_nlos_model = (sqrt(fun-taum^2));
 coherence_BW_nlos = 1/(2*pi*delay_spread_nlos);
+
+PDPverif_nlos=abs(ifft(autocorr(fft(mean(ht_nlos,2)))));
+fun = mean((tau.^2).*PDPverif_nlos,'all');
+taum =  mean((tau).*PDPverif_nlos,'all');
+delay_spread_verif_nlos = (sqrt(fun-taum^2));
+coherence_BW_verif_nlos = 1/(2*pi*delay_spread_verif_nlos);
 
 figure;
 plot(Pmodel_nlos);
@@ -193,12 +200,7 @@ hold on;
 grid on;
 ylabel('PDP')
 xlabel('tau')
-legend('PDP model','PDP')
-title('Power Delay Profile NLOS')
+legend(strcat('PDP model: \sigma_T [\mus]= ',num2str(delay_spread_nlos_model*10e6)),strcat('PDP: \sigma_T [\mus]= ',num2str(delay_spread_nlos*10e6)))
+title(strcat('Power Delay Profile LOS with \sigma_{T_{verif}} [\mus]=', num2str(delay_spread_verif_nlos*10e6)))
 
-PDPverif_nlos=abs(ifft(autocorr(fft(mean(ht_nlos,2)))));
-fun = mean((tau.^2).*PDPverif_nlos,'all');
-taum =  mean((tau).*PDPverif_nlos,'all');
-delay_spread_verif_nlos = (sqrt(fun-taum^2));
-coherence_BW_verif_nlos = 1/(2*pi*delay_spread_verif_nlos);
  
