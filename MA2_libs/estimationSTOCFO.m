@@ -8,7 +8,7 @@ function [STO_estimated, CFO_estimated] = estimationSTOCFO(params,signal_rx)
         
     N = params.ofdm.N_subcrr+params.ofdm.cp_L;      
     
-    length_analyzed_signal = 2*N*10;
+    length_analyzed_signal = 2*N*10; % Change this value to set the length of the signal you want to analyse 32*N is one frame.
     
     for i=1:k
          
