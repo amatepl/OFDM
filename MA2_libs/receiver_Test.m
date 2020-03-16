@@ -44,8 +44,8 @@ function symb_rx = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
         %FFT
         S=fft(s(:,1:end),params.Q);
 
-        fq = -params.Q/2:1:params.Q/2-1;
-        plot(fq,abs(ifftshift(S(:,1))));
+%         fq = -params.Q/2:1:params.Q/2-1;
+%         plot(fq,abs(ifftshift(S(:,1))));
 
         % Inactive subcarriers removal
 
