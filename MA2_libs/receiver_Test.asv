@@ -68,8 +68,8 @@ for i=1:k
     Ht=fft(ht,params.nActiveQ); 
     hz(i) = Ht(400);
     
-    plot(fq,abs(Ht));
-    grid on;
+%     plot(fq,abs(fftshift(Ht)));
+%     grid on;
     
     %Channel equalization
     Htcirc = toeplitz(Ht, [Ht(1,1); zeros(params.nActiveQ-1,1)]);

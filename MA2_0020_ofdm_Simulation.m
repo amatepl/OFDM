@@ -73,14 +73,14 @@ signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
 [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,params.Q+params.LCP,preambleLCP);
 
 %Average over the antennas
-STO_estimated = round(mean(STO_estimated,'all'));
-CFO_estimated = mean(CFO_estimated,'all');
+%STO_estimated = round(mean(STO_estimated,'all'));
+%CFO_estimated = mean(CFO_estimated,'all');
 
-signal_rx = signal_rx(:,STO_estimated+1:STO_estimated+Nsymb);
+signal_rx = signal_rx(:,STO_estimated+ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
 
 T = 1/params.B;
 n = 1:1:Nsymb;
-phi = exp(-1i*CFO_estimated*T*n);    
+phi = exp(1i*CFO_estimated*T*n);    
 signal_rx = signal_rx.*phi;
 
 % signal_rx = horzcat(signal_rx(STO_estimated+1:end),zeros(1,STO_estimated));

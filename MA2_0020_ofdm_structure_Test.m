@@ -64,20 +64,22 @@ bits_tx = demodulation(params,Qsymb_data,'bpsk');
 Qsymb_preamble = reshape(Qsymb_pre,[],1);
 Qsymb_tx = vertcat(Qsymb_preamble,Qsymb_data);
 
-signal_rx = signal_rx_los(:,1:3*frame_size);
+signal_rx = signal_rx_los(:,1:50*frame_size);
 
 % 4. OFDM Receiver:
-[STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,frame_size,preambleLCP);
+[STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,25);
 
 %Average over the antennas
-STO_estimated = round(mean(STO_estimated,'all'));
-CFO_estimated = mean(CFO_estimated,'all');
+%STO_estimated = round(mean(STO_estimated,'all'));
+%CFO_estimated = mean(CFO_estimated,'all');
 
-signal_rx = signal_rx(:,STO_estimated+1:STO_estimated+Nsymb);
+signal_rx = signal_rx(:,STO_estimated + ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
+%signal_rx = signal_rx(:,STO_estimated + 1:STO_estimated+Nsymb);
+
 
 T = 1/params.B;
 n = 1:1:size(signal_rx,2);
-phi = exp(1i*CFO_estimated*T*n);    
+phi = exp(-1i*CFO_estimated*T*n);    
 signal_rx = signal_rx.*phi;
 
 [hz,Qsymb_rx] = receiver_Test(params,signal_rx,params.nData,Qsymb_pre(:,1).',Qsymb_pilot);
