@@ -31,8 +31,8 @@ params.N_zeros = 2;
 
 signal_tx = load('../ma2/sig_tx.mat').sig_tx; % load singal_rx
 
-signal_rx_los = load('../ma2/ma2_g1_nlos_rx.mat'); % load singal_rx
-signal_rx_los = signal_rx_los.ma2_g1_nlos_rx;
+signal_rx_los = load('../ma2/ma2_g1_los_rx.mat'); % load singal_rx
+signal_rx_los = signal_rx_los.ma2_g1_los_rx;
 
 frame_size = (params.nPreamble+params.nData+params.N_zeros)*(params.Q+params.LCP);
 Nsymb = (params.Q+params.LCP)*(params.nData+params.nPreamble);
@@ -77,9 +77,9 @@ STO_estimated = round(mean(STO_estimated,'all'));
 rest = frame_size-STO_estimated;
 signal_rx = signal_rx_los(:,STO_estimated + 1:end-rest);
 signal_rx = reshape(signal_rx.',frame_size,size(signal_rx,1),[]);
-signal_rx = signal_rx(1:Nsymb,:,:);
+signal_rx = signal_rx(1:N
 
-for i = 1:size(signal_rx,3)
+for i = size(signal_rx,3)
     signalrx = signal_rx(:,:,i).';
     CFO_estimated = estimationCFO(params,signalrx);
     CFO_estimated = mean(CFO_estimated,'all');
