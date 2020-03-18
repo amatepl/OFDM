@@ -25,31 +25,5 @@ function [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx
         STO_estimated(i) = find(n==max(n))-1;
         CFO_estimated(i) = -angle(An(STO_estimated(i)+1))/(T*N);
         
-%         % M is a matrix where every column is the same and we apply over it a
-%         % lower triangular transformation followed by a upper triangular one.
-%             
-%         
-% %         M = triu(tril(ones(size(signalrx(N+1:(m*N)+N-1),1))),-N+1);
-%         
-% %         signalrx =  signalrx(N+1:(m*N)+N-1)';
-%         
-% %         M = signalrx(N+1:(m*N)+N-1).*M;
-%         
-%         M = triu(tril(signalrx(N+1:(m*N)+N-1).*ones(size(signalrx(N+1:(m*N)+N-1),1))),-N+1);
-%         M = M(:,1:N);
-%        
-% %         An = conj(signalrx(1:m*N-1)*M);
-% 
-%         An = (signalrx(1:m*N-1).')*M;
-%     
-%         M = triu(tril(signalrx(1:(m*N)+N-1).*ones(size(signalrx(1:(m*N)+N-1),1))),-2*N +1);
-%         M = M(:,1:N);
-%     
-%         n = abs(An)./(vecnorm(M).^2);
-%         
-%         STO_estimated(i) = find(n==max(n))-1;
-%         CFO_estimated(i) = -angle(An(STO_estimated(i)+1))/(T*N);
-%         %CFO_estimated = 0;
-        
     end
 end
