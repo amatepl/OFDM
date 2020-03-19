@@ -28,9 +28,9 @@ k=size(signal_rx,1);
 fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
 hz = zeros(k,1);
 
-figure, hold on;
-grid on;
-title("Time domain estimation")
+% figure, hold on;
+% grid on;
+% title("Time domain estimation")
 for i=1:k  
     signalrx = signal_rx(i,1:end-mod(size(signal_rx,2),32));
     % S/P conversion
@@ -66,10 +66,10 @@ for i=1:k
     a=lambda'*S(:,2);
     ht = ifft(a,params.nActiveQ);
     Ht=fft(ht,params.nActiveQ); 
-    hz(i) = Ht(400);
+    hz(i) = Ht(500);
     
-    plot(fq,abs(Ht));
-    grid on;
+    %plot(fq,abs(fftshift(Ht)));
+%     grid on;
     
     %Channel equalization
     Htcirc = toeplitz(Ht, [Ht(1,1); zeros(params.nActiveQ-1,1)]);
