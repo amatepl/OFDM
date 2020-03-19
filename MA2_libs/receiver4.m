@@ -47,8 +47,19 @@ for i=1:k
     %fq = -params.Q/2:1:params.Q/2-1;
     %plot(fq,abs(ifftshift(S(:,1))));
     
+%     figure, hold on;
+%     plot(abs(S(:,2)));
+%     title("S + inactQ");
+    
     % Inactive subcarriers removal
     S = S(params.ActiveQIndex,:);
+    
+%     figure, hold on;
+%     plot(abs(S(:,2)));
+%     title("S");
+    
+%     figure, hold on;
+%     plot((Preamble));
     
     %Channel estimation i frequency damain
     lambda=diag(Preamble);    
@@ -80,7 +91,7 @@ for i=1:k
     S=S.';
     
     Ssum =+ S;
-    Hsum =+ abs(Ht).^2;
+    Hsum =+ abs(H).^2;
     
 end    
 
@@ -97,7 +108,7 @@ end
 
 %     figure, hold on;
 %     fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
-%     plot(fq,abs(Hsum));
+%     plot(fq,abs(Ht));
 %     grid on;
 %     title("Time domain estiamtion")
     

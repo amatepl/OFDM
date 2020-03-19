@@ -54,16 +54,33 @@ function signal_rx = channel_propagation4(params,signal_tx,H,SNR,Nr)
 
 
 %     figure, hold on;
-%     plot(abs(H(1,:).'));
+%     plot(abs((H(1,:)).'));
 
-    h = ifft(H,[],2);
-    signal_rx = zeros(Nr,length(signal_tx));
-%     signal_rx = conv2(1,signal_tx,h);
+%     H = fftshift(H);
+    h = ifft(fftshift(H),[],2);
+   
+%     h = ifft((H(:,params.ActiveQIndex)),[],2);
+%     figure, hold on;
+% %     plot(abs(ifftshift(h(1,:).')));
+%     plot(abs(h(1,:).'));
     
-    for i = 1:Nr
-        signal_rx(i,:) = conv(signal_tx,h(i,:),'same');
-    end
+    signal_rx = zeros(Nr,length(signal_tx));
+    
+%     signal_rx = conv2(1,signal_tx,h);
+% 
+%     signal_rx = reshape(signal_tx,32,2048+512);
+%     signal_rx = conv2(1,h(1,1:256),signal_rx,'same');
+%     signal_rx = reshape(signal_rx,1,[]);
 
+    signal_rx = conv(signal_tx,(h(1,2:512)),'same');
+    
+%     for i = 1:Nr
+%         signal_rx(i,:) = conv(signal_tx,h(i,:),'same');
+% %         signal_rx(i,:) = conv(signal_tx,1,'same');
+%     end
+
+%     figure, hold on;
+%     plot(abs((H(1,:)).'));
 
 %     signal_rx = signal_tx.*ones(Nr,length(signal_tx));
     
@@ -75,22 +92,6 @@ function signal_rx = channel_propagation4(params,signal_tx,H,SNR,Nr)
     noise = noise_std*(randn(length(signal_tx),Nr)+1i*randn(length(signal_tx),Nr));      % noise
     
     
-    signal_rx = signal_rx +noise.'; 
+    signal_rx = signal_rx ;%+noise.'; 
     
-    % Matched filter + MMSE equalizer
-%     impulse_response = [zeros(STO,1); impulse_response(1:end-STO)];
-%     impulse_matrix = convolutionMatrix(impulse_response);
-%     Nb = 2 * params.ofdm.N_subcrr * params.modulation.Nbps;
-%     No = noise_energy/(Nb*2);
-%     signal_rx_col = reshape(signal_rx,Lcp+Q,[]);
-%     var1 = var(signal_rx);
-%     signal_rx_col = (2*No/var1+impulse_matrix'*impulse_matrix)\impulse_matrix'*signal_rx_col;
-%     signal_rx = reshape(signal_rx_col,size(signal_rx,1)*size(signal_rx,2),1).';
-   
-    
-    % ---------------------------------------------------------------------
-    % 'simple_channel_AWGN': Implements a simple AWGN channel. No
-    % STO, Multipath, etc.
-    % IMPORTANT!!: Comment the next line when trying your implementation    
-    % signal_rx = simple_channel_AWGN(params,signal_tx,SNR);
 end

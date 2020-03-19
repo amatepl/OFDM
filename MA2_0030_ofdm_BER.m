@@ -37,6 +37,8 @@ Nr = 1;                             % number of receivers
 % define storage variables:
 BER_i = zeros(NsimPerSNR,length(SNR_list));
 
+figure, hold on;
+plot(abs(H_LOS_G1(1,:)))
 
 progress_indx = 0;
 for sim_idx = 1:NsimPerSNR
@@ -46,6 +48,7 @@ for sim_idx = 1:NsimPerSNR
             
         % 1. Message, preamble and pilot construction
         [Preamble, bits_data, ~] = build_message_test(params,Nbits,Nbps);
+%         Preamble = ones(params.nActiveQ*2,1);
 
         %bits_tx = vertcat(Preamble,bits_data);
         bits_tx = bits_data;
@@ -63,6 +66,7 @@ for sim_idx = 1:NsimPerSNR
 
         % 4. Channel propagation: 
         signal_rx = channel_propagation4(params,signal_tx,H_LOS_G1,SNR,Nr);
+        y = testFunc(signal_tx,H_LOS_G1);
         
         %Average over the antennas
         %STO_estimated = round(mean(STO_estimated,'all'));
