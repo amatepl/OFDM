@@ -92,7 +92,7 @@
  x=0:0.0001:2;
  y=zeros(size(x,2),size(idx,1));
  for i=1:size(idx,1)
-    pd = fitdist(abs(fft(ht(i,:)))','Rician');
+    pd = fitdist(abs(fft(ht(i,:)))','Rician'); %en f ou t la rice ????
     y(:,i)=pdf(pd,x);
  end
  
@@ -207,7 +207,7 @@ grid on;
 ylabel('PDP')
 xlabel('\tau')
 legend(strcat('PDP model: \sigma_T [\mus]= ',num2str(delay_spread_nlos_model*10e6)),strcat('PDP: \sigma_T [\mus]= ',num2str(delay_spread_nlos*10e6)))
-title(strcat('Power Delay Profile LOS with \sigma_{T_{verif}} [\mus]=', num2str(delay_spread_verif_nlos*10e6)))
+title(strcat('Power Delay Profile NLOS with \sigma_{T_{verif}} [\mus]=', num2str(delay_spread_verif_nlos*10e6)))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Influence of BW on PDP LOS

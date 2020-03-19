@@ -66,8 +66,9 @@ for i=1:k
     a=lambda'*S(:,2);
     ht = ifft(a,params.nActiveQ);
     Ht=fft(ht,params.nActiveQ); 
-    hz(i) = Ht(400);
+    hz(i) = Ht(500);
     
+
 %     plot(fq,abs(Ht));
 %     grid on;
     
