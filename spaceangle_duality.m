@@ -14,16 +14,10 @@ aNLOS = fft(HNLOS);
 
 [n,m] = size(aLOS);
 
-SLOS = zeros(2*n-1,m);
-SNLOS = zeros(2*n-1,m);
 
-for i = 1: size(aLOS,2)
-    SLOS(:,i) = xcorr(aLOS(:,i));
-    SNLOS(:,i) = xcorr(aNLOS(:,i));
-end
 
-SLOS = abs(SLOS(n:end,:))/(2*pi);
-SNLOS = abs(SNLOS(n:end,:))/(2*pi);
+SLOS = aLOS.*conj(aLOS)/(2*pi);
+SNLOS = aNLOS.*conj(aNLOS)/(2*pi);
 
 theta = [0 pi/2 pi 3*pi/2];
 beta = 2*pi*params.Fc/physconst('LightSpeed');
@@ -43,7 +37,13 @@ varNLOS = sum(u2.*SNLOS,1)./PNLOS;
 sigmaLOS = sqrt(varLOS-(umLOS.*umLOS));
 sigmaNLOS = sqrt(varNLOS-(umNLOS.*umNLOS));
 
-
 RLOS = ifft(SLOS)/(2*pi);
 RNLOS = ifft(SNLOS)/(2*pi);
+figure
+subplot(1,2,1);
+plot(abs(RLOS(:,1:10)./abs(RLOS(1,1:10))))
+title("LOS Spatial Correlation");
+subplot(1,2,2);
+plot(abs(RNLOS(:,1:10)./abs(RNLOS(1,1:10))))
+title("NLOS Spatial Correlation");
 
