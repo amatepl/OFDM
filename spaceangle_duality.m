@@ -19,31 +19,38 @@ aNLOS = fft(HNLOS);
 SLOS = aLOS.*conj(aLOS)/(2*pi);
 SNLOS = aNLOS.*conj(aNLOS)/(2*pi);
 
-theta = [0 pi/2 pi 3*pi/2];
+costheta = [1 0 -1 0];
 beta = 2*pi*params.Fc/physconst('LightSpeed');
-u = beta*cos(theta);
+u = beta*costheta;
 
-PLOS = sum(SLOS,1);
-PNLOS = sum(SNLOS,1);
+PLOS = sum(SLOS);
+PNLOS = sum(SNLOS);
 
 u = repmat(u.',[1,m]);
 u2 = u.*u;
-umLOS = sum(u.*SLOS,1)./PLOS;
-umNLOS = sum(u.*SNLOS,1)./PNLOS;
 
-varLOS = sum(u2.*SLOS,1)./PLOS;
-varNLOS = sum(u2.*SNLOS,1)./PNLOS;
+umLOS = sum(u.*SLOS)./PLOS;
+umNLOS = sum(u.*SNLOS)./PNLOS;
+
+varLOS = sum(u2.*SLOS)./PLOS;
+varNLOS = sum(u2.*SNLOS)./PNLOS;
 
 sigmaLOS = sqrt(varLOS-(umLOS.*umLOS));
 sigmaNLOS = sqrt(varNLOS-(umNLOS.*umNLOS));
 
-RLOS = ifft(SLOS)/(2*pi);
-RNLOS = ifft(SNLOS)/(2*pi);
+thetaLOS=acos(sigmaLOS/beta);
+thetaLOS = rad2deg(thetaLOS);
+
+thetaNLOS = acos(sigmaNLOS/beta);
+thetaNLOS = rad2deg(thetaNLOS);
+
+RLOS = ifft(SLOS);
+RNLOS = ifft(SNLOS);
 figure
 subplot(1,2,1);
-plot(abs(RLOS(:,1:10)./abs(RLOS(1,1:10))))
+plot(abs(RLOS(:,1:10)))
 title("LOS Spatial Correlation");
 subplot(1,2,2);
-plot(abs(RNLOS(:,1:10)./abs(RNLOS(1,1:10))))
+plot(abs(RNLOS(:,1:10)))
 title("NLOS Spatial Correlation");
 
