@@ -31,71 +31,96 @@ hz = zeros(k,1);
 % figure, hold on;
 % grid on;
 % title("Time domain estimation")
-for i=1:k  
-    
-%     signalrx = signal_rx(i,1:end-mod(size(signal_rx,2),32));
-%     
-%     % S/P conversion
-%     s = reshape(signalrx.',[],Nsymb_ofdm+params.nPreamble);
-%     
-%     % CP removal
-%     s=s(params.LCP+1:end,:);
-%     
-%     %FFT
-%     S=fft(s(:,1:end),params.Q);
-    
-    %fq = -params.Q/2:1:params.Q/2-1;
-    %plot(fq,abs(ifftshift(S(:,1))));
-    
-%     figure, hold on;
-%     plot(abs(S(:,2)));
-%     title("S + inactQ");
 
-    S = signal_rx(:,:,i);
+    S = signal_rx;
     
     % Inactive subcarriers removal
-    S = S(params.ActiveQIndex,:);
-    
-%     figure, hold on;
-%     plot(abs(S(:,2)));
-%     title("S");
-    
-%     figure, hold on;
-%     plot((Preamble));
+    S = S(params.ActiveQIndex,:,:);
     
     %Channel estimation i frequency damain
     lambda=diag(Preamble);    
+%     H= lambda\S(:,2,:);  
 
-    H= lambda\S(:,2);  
-    h=ifft(H); % refinement in time domain of f domain estimation
-    h(1,params.LCP+1:end)=0;
-    H=fft(h);
+    H = Preamble./S(:,2,:);  
+    h=ifft(H,[],1); % refinement in time domain of f domain estimation
+    h(1,params.LCP+1:end,:)=0;
+    H=fft(h,[],1);
     %Channel equalization
     Hm = ones(params.nActiveQ, Nsymb_ofdm +2).*H;
-    %S=S./Hm;
-
    
     %Channel estimation in time domain
-    a=lambda'*S(:,2);
-    ht = ifft(a,params.nActiveQ);
-    Ht=fft(ht,params.nActiveQ); 
-    hz(i) = Ht(400);
-    
-%     plot(fq,abs(Ht));
-%     grid on;
+%     a=lambda'*S(:,2,:);
+    a=Preamble.*S(:,2,:);
+    ht = ifft(a,params.nActiveQ,1);
+    Ht=fft(ht,params.nActiveQ,1); 
+%     hz(i) = Ht(400);
     
     %Channel equalization
-    Htcirc = toeplitz(Ht, [Ht(1,1); zeros(params.nActiveQ-1,1)]);
+%     Htcirc = toeplitz(Ht, [Ht(1,1); zeros(params.nActiveQ-1,1)]);
     Htm = ones(params.nActiveQ, Nsymb_ofdm +2).*Ht;
 
-    S=S.';
-    S=S*diag(Ht)';
-    S=S.';
+    S=S.*conj(Ht);
     
-    Ssum =+ S;
-    Hsum =+ abs(H).^2;
+%     S=S.';
+%     S=S*diag(Ht)';
+%     S=S.';
     
-end    
+    Ssum = sum(S,3);
+    Hsum = sum(abs(Ht).^2,3);
+
+
+% for i=1:k  
+%      
+%     %fq = -params.Q/2:1:params.Q/2-1;
+%     %plot(fq,abs(ifftshift(S(:,1))));
+%     
+% %     figure, hold on;
+% %     plot(abs(S(:,2)));
+% %     title("S + inactQ");
+% 
+%     S = signal_rx(:,:,i);
+%     
+%     % Inactive subcarriers removal
+%     S = S(params.ActiveQIndex,:);
+%     
+% %     figure, hold on;
+% %     plot(abs(S(:,2)));
+% %     title("S");
+%     
+%     
+%     %Channel estimation i frequency damain
+%     lambda=diag(Preamble);    
+% 
+%     H= lambda\S(:,2);  
+%     h=ifft(H); % refinement in time domain of f domain estimation
+%     h(1,params.LCP+1:end)=0;
+%     H=fft(h);
+%     %Channel equalization
+%     Hm = ones(params.nActiveQ, Nsymb_ofdm +2).*H;
+%     %S=S./Hm;
+% 
+%    
+%     %Channel estimation in time domain
+%     a=lambda'*S(:,2);
+%     ht = ifft(a,params.nActiveQ);
+%     Ht=fft(ht,params.nActiveQ); 
+%     hz(i) = Ht(400);
+%     
+% %     plot(fq,abs(Ht));
+% %     grid on;
+%     
+%     %Channel equalization
+%     Htcirc = toeplitz(Ht, [Ht(1,1); zeros(params.nActiveQ-1,1)]);
+%     Htm = ones(params.nActiveQ, Nsymb_ofdm +2).*Ht;
+% 
+%     S=S.';
+%     S=S*diag(Ht)';
+%     S=S.';
+%     
+%     Ssum =+ S;
+%     Hsum =+ abs(Ht).^2;
+%     
+% end    
 
     Scomb= Ssum./(Hsum.*ones(params.nActiveQ, Nsymb_ofdm+params.nPreamble));
     
