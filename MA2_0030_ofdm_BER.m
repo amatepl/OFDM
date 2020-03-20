@@ -16,14 +16,16 @@ cfg = load('TestParam4.mat');   % load configFile
 params = cfg.TestParam4;                    % get the set of parameters
 H_LOS_G1 = load('H_LOS_G1.mat');
 H_LOS_G1 = H_LOS_G1.H;
+H_NLOS_G1 = load('H_NLOS_G1.mat');
+H_NLOS_G1 = H_NLOS_G1.H;
 H_LOS_G2 = load('H_LOS_G2.mat');
 H_LOS_G2 = H_LOS_G2.H_los_g2;
 H_LOS_G6 = load('Hest_LOS.mat');
 H_LOS_G6 = H_LOS_G6.Hest;
 H_LOS_G6 = H_LOS_G6.';
 z = zeros(4,params.Q);
-z(:,params.ActiveQIndex) = H_LOS_G6;
-H_LOS_G6 = z;
+z(:,params.ActiveQIndex) = (H_LOS_G6);
+H_LOS_G6 = ifftshift(z);
 clear z;
 
 dispConfigFile_Test(params);                 % display the parameters
@@ -32,13 +34,26 @@ dispConfigFile_Test(params);                 % display the parameters
 Nsymb_ofdm = 10;     % number OFDM symbols to transmit
 NsimPerSNR = 10;    % number of simulations per SNR value
 Nbits = params.nData * params.nActiveQ * Nbps;
-Nr = 4;                             % number of receivers
+Nr = 3;                             % number of receivers
 
 % define storage variables:
 BER_i = zeros(NsimPerSNR,length(SNR_list));
 
 figure, hold on;
-plot(abs(H_LOS_G1(1,:)))
+plot(abs(H_LOS_G1(:,:).'))
+legend('1','2','3','4');
+
+figure, hold on;
+plot(abs(H_LOS_G2(:,:).'))
+legend('1','2','3','4');
+
+figure, hold on;
+plot(abs(H_LOS_G6(:,:).'))
+legend('1','2','3','4');
+
+% figure, hold on;
+% h = ifftshift(H_LOS_G6(4,:));
+% plot(abs(h(params.ActiveQIndex)));
 
 progress_indx = 0;
 for sim_idx = 1:NsimPerSNR
@@ -48,7 +63,6 @@ for sim_idx = 1:NsimPerSNR
             
         % 1. Message, preamble and pilot construction
         [Preamble, bits_data, ~] = build_message_test(params,Nbits,Nbps);
-%         Preamble = ones(params.nActiveQ*2,1);
 
         %bits_tx = vertcat(Preamble,bits_data);
         bits_tx = bits_data;
@@ -62,22 +76,27 @@ for sim_idx = 1:NsimPerSNR
 
         % 3. OFDM Transmitter: 
         [signal_tx] = transmitter4(params, Qsymb_pre, Qsymb_data);
-%         preambleLCP = signal_tx(:,1:params.Q+params.LCP);
-
-        % 4. Channel propagation: 
-        signal_rx = channel_propagation4(params,signal_tx,H_LOS_G1(1:Nr,:),SNR,Nr);
-%         y = testFunc(signal_tx,H_LOS_G1);
-        
-        %Average over the antennas
-        %STO_estimated = round(mean(STO_estimated,'all'));
-        %CFO_estimated = mean(CFO_estimated,'all');
-
         preamble = Qsymb_pre(1:params.nActiveQ);    % Take only one copy of the preamble
-
-        [hz,Qsymb_rx] = receiver4(params,signal_rx,params.nData, preamble);
-
+        
+        % 4. Channel propagation: 
+        
+        % USER 1
+        signal_rx_1 = channel_propagation4(params,signal_tx,H_LOS_G1(3:Nr,:),SNR,Nr);
+        [hz,Qsymb_rx_1] = receiver4(params,signal_rx_1,params.nData, preamble);
         % 5. Demodulation:
-        bits_rx = demodulation(params,Qsymb_rx(2*params.nActiveQ+1:end),'qpsk');
+        bits_rx_1 = demodulation(params,Qsymb_rx_1(2*params.nActiveQ+1:end),'qpsk');
+        % compute BER
+        bitErrorRate_1 = sum(abs(bits_tx - bits_rx_1),'all');
+        
+        % USER 2
+        signal_rx_2 = channel_propagation4(params,signal_tx,H_LOS_G6(1:Nr,:),SNR,Nr);
+        [hz,Qsymb_rx_2] = receiver4(params,signal_rx_2,params.nData, preamble);
+%         y = testFunc(signal_tx,H_LOS_G1);
+        % 5. Demodulation:
+        bits_rx_2 = demodulation(params,Qsymb_rx_2(2*params.nActiveQ+1:end),'qpsk');       
+        % compute BER
+        bitErrorRate_2 = sum(abs(bits_tx - bits_rx_2),'all');
+        
         
           
 %% Initial code        
@@ -97,9 +116,8 @@ for sim_idx = 1:NsimPerSNR
 %         bits_rx = demodulation(params,Qsymb_rx);
 %%
         
-        % compute BER
-        bitErrorRate = sum(abs(bits_tx - bits_rx),'all');
-        BER_i(sim_idx,SNR_idx) = bitErrorRate / length(bits_tx);
+        
+        BER_i(sim_idx,SNR_idx) = (bitErrorRate_1+bitErrorRate_1 )/ (2*length(bits_tx));
     end
     progress = round(progress_indx/NsimPerSNR/length(SNR_list)*100);
     disp([' Simulation executed @ ', num2str(progress), '%']);
