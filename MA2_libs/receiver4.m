@@ -24,7 +24,7 @@
 
 function [hz,symb_rx] = receiver4(params,signal_rx,Nsymb_ofdm, Preamble)
 
-k=size(signal_rx,1); 
+k=size(signal_rx,3); 
 % fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
 hz = zeros(k,1);
 
@@ -33,16 +33,16 @@ hz = zeros(k,1);
 % title("Time domain estimation")
 for i=1:k  
     
-    signalrx = signal_rx(i,1:end-mod(size(signal_rx,2),32));
-    
-    % S/P conversion
-    s = reshape(signalrx.',[],Nsymb_ofdm+params.nPreamble);
-    
-    % CP removal
-    s=s(params.LCP+1:end,:);
-    
-    %FFT
-    S=fft(s(:,1:end),params.Q);
+%     signalrx = signal_rx(i,1:end-mod(size(signal_rx,2),32));
+%     
+%     % S/P conversion
+%     s = reshape(signalrx.',[],Nsymb_ofdm+params.nPreamble);
+%     
+%     % CP removal
+%     s=s(params.LCP+1:end,:);
+%     
+%     %FFT
+%     S=fft(s(:,1:end),params.Q);
     
     %fq = -params.Q/2:1:params.Q/2-1;
     %plot(fq,abs(ifftshift(S(:,1))));
@@ -50,6 +50,8 @@ for i=1:k
 %     figure, hold on;
 %     plot(abs(S(:,2)));
 %     title("S + inactQ");
+
+    S = signal_rx(:,:,i);
     
     % Inactive subcarriers removal
     S = S(params.ActiveQIndex,:);

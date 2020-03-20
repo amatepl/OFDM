@@ -44,13 +44,13 @@ function [signal_tx] = transmitter4(params, symb_pre,symb_tx)
 %     grid on;
 %     title("signal tx with CFO and STO correction applied");
     
-    % IFFT
-    symb_tx_parallel = ifft(symb_tx_parallel,[],1);
-    
-    % Cyclic prefix addition
-    symb_tx_parallel = vertcat(symb_tx_parallel(end-params.LCP+1:end,:),symb_tx_parallel);
-    
-    % Parallel to serial converter
-    signal_tx = reshape(symb_tx_parallel,1,[]);
-    
+%     % IFFT
+%     symb_tx_parallel = ifft(symb_tx_parallel,[],1);
+%     
+%     % Cyclic prefix addition
+%     symb_tx_parallel = vertcat(symb_tx_parallel(end-params.LCP+1:end,:),symb_tx_parallel);
+%     
+%     % Parallel to serial converter
+%     signal_tx = reshape(symb_tx_parallel,1,[]);
+    signal_tx = symb_tx_parallel;
 end

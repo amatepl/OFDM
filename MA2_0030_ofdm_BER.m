@@ -32,7 +32,7 @@ dispConfigFile_Test(params);                 % display the parameters
 Nsymb_ofdm = 10;     % number OFDM symbols to transmit
 NsimPerSNR = 10;    % number of simulations per SNR value
 Nbits = params.nData * params.nActiveQ * Nbps;
-Nr = 1;                             % number of receivers
+Nr = 2;                             % number of receivers
 
 % define storage variables:
 BER_i = zeros(NsimPerSNR,length(SNR_list));
@@ -62,11 +62,11 @@ for sim_idx = 1:NsimPerSNR
 
         % 3. OFDM Transmitter: 
         [signal_tx] = transmitter4(params, Qsymb_pre, Qsymb_data);
-        preambleLCP = signal_tx(:,1:params.Q+params.LCP);
+%         preambleLCP = signal_tx(:,1:params.Q+params.LCP);
 
         % 4. Channel propagation: 
-        signal_rx = channel_propagation4(params,signal_tx,H_LOS_G1,SNR,Nr);
-        y = testFunc(signal_tx,H_LOS_G1);
+        signal_rx = channel_propagation4(params,signal_tx,H_LOS_G1(1:Nr,:),SNR,Nr);
+%         y = testFunc(signal_tx,H_LOS_G1);
         
         %Average over the antennas
         %STO_estimated = round(mean(STO_estimated,'all'));
