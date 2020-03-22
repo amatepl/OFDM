@@ -34,7 +34,7 @@ dispConfigFile_Test(params);                 % display the parameters
 Nsymb_ofdm = 10;     % number OFDM symbols to transmit
 NsimPerSNR = 10;    % number of simulations per SNR value
 Nbits = params.nData * params.nActiveQ * Nbps;
-Nr = 3;                             % number of receivers
+Nr = 4;                             % number of receivers
 
 % define storage variables:
 BER_i = zeros(NsimPerSNR,length(SNR_list));
@@ -46,10 +46,12 @@ legend('1','2','3','4');
 figure, hold on;
 plot(abs(H_LOS_G2(:,:).'))
 legend('1','2','3','4');
+title('Groupe 2');
 
 figure, hold on;
 plot(abs(H_LOS_G6(:,:).'))
 legend('1','2','3','4');
+title('Groupe 6');
 
 % figure, hold on;
 % h = ifftshift(H_LOS_G6(4,:));
@@ -81,7 +83,7 @@ for sim_idx = 1:NsimPerSNR
         % 4. Channel propagation: 
         
         % USER 1
-        signal_rx_1 = channel_propagation4(params,signal_tx,H_LOS_G1(3:Nr,:),SNR,Nr);
+        signal_rx_1 = channel_propagation4(params,signal_tx,H_LOS_G1(1:Nr,:),SNR,Nr);
         [hz,Qsymb_rx_1] = receiver4(params,signal_rx_1,params.nData, preamble);
         % 5. Demodulation:
         bits_rx_1 = demodulation(params,Qsymb_rx_1(2*params.nActiveQ+1:end),'qpsk');

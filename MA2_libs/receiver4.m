@@ -58,13 +58,13 @@ hz = zeros(k,1);
     Htm = ones(params.nActiveQ, Nsymb_ofdm +2).*Ht;
 
     % match filter
-%     S=S.*conj(H);
+%     S=S.*conj(Ht);
     
     % Zero forcing equalizer
     S=S./Ht;
         
     Ssum = sum(S,3);
-    Hsum = sum(abs(H).^2,3);
+    Hsum = sum(abs(Ht).^2,3);
 
     Scomb= Ssum./(Hsum.*ones(params.nActiveQ, Nsymb_ofdm+params.nPreamble));
     
