@@ -70,7 +70,7 @@ preambleLCP = signal_tx(:,1:params.Q+params.LCP);
 % % 4. Channel propagation: 
 signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
 % 4. OFDM Receiver:
-[STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,params.Q+params.LCP,preambleLCP);
+[STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,0.5);
 
 %Average over the antennas
 %STO_estimated = round(mean(STO_estimated,'all'));
