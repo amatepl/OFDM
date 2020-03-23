@@ -68,7 +68,8 @@ for i=1:k
     Ht=fft(ht,params.nActiveQ); 
     hz(i) = Ht(500);
     
-    %plot(fq,abs(fftshift(Ht)));
+
+%     plot(fq,abs(Ht));
 %     grid on;
     
     %Channel equalization
@@ -162,10 +163,15 @@ end
 %     grid on;
 %     title("Frequency domain estiamtion");
 
-%     figure, hold on;
-%     plot(fq,abs(Ht));
-%     grid on;
-%     title("Time domain estiamtion")
+    figure, hold on;
+    plot(abs(Hsum));
+    grid on;
+    title("Time domain estiamtion")
+    
+    figure, hold on;
+    plot(abs(ifft(Hsum)));
+    grid on;
+    title("Time domain estiamtion - h(t)")
     
     %S_pilots = reshape(S_pilots,[],1);
     

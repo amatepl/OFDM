@@ -29,7 +29,8 @@ dispConfigFile_Test(params);                 % display the parameters
 params.N_pilots = 126;
 params.N_zeros = 2;
 
-signal_tx = load('../ma2/sig_tx.mat').sig_tx; % load singal_rx
+signal_tx = load('../ma2/sig_tx.mat'); % load singal_rx
+signal_tx = signal_tx.sig_tx;
 
 signal_rx_los = load('../ma2/ma2_g1_nlos_rx.mat'); % load singal_rx
 signal_rx_los = signal_rx_los.ma2_g1_nlos_rx;
@@ -64,7 +65,8 @@ bits_tx = demodulation(params,Qsymb_data,'bpsk');
 Qsymb_preamble = reshape(Qsymb_pre,[],1);
 Qsymb_tx = vertcat(Qsymb_preamble,Qsymb_data);
 
-signal_rx = signal_rx_los(:,1:50*frame_size);
+% signal_rx = signal_rx_los(:,1:50*frame_size);
+signal_rx = signal_rx_los(1,1:50*frame_size);
 
 % 4. OFDM Receiver:
 STO_estimated = estimationSTO(params,signal_rx,25);

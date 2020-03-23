@@ -36,21 +36,7 @@ function [signal_tx] = transmitter4(params, symb_pre,symb_tx)
     % Adding inactive subcarriers
     inactSubRem = zeros(params.Q,params.nData + params.nPreamble);
     inactSubRem(params.ActiveQIndex,:) =  symb_tx_parallel;
-    symb_tx_parallel = (inactSubRem);
     
-%     figure, hold on;
-%     fq = -params.Q/2:1:params.Q/2-1;
-%     plot(fq,abs((symb_tx_parallel(:,1))));
-%     grid on;
-%     title("signal tx with CFO and STO correction applied");
-    
-    % IFFT
-    symb_tx_parallel = ifft(symb_tx_parallel,[],1);
-    
-    % Cyclic prefix addition
-    symb_tx_parallel = vertcat(symb_tx_parallel(end-params.LCP+1:end,:),symb_tx_parallel);
-    
-    % Parallel to serial converter
-    signal_tx = reshape(symb_tx_parallel,1,[]);
+    signal_tx = (inactSubRem);
     
 end
