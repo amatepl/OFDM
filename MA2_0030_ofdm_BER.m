@@ -26,6 +26,14 @@ H_LOS_G6 = H_LOS_G6.';
 z = zeros(4,params.Q);
 z(:,params.ActiveQIndex) = (H_LOS_G6);
 H_LOS_G6 = ifftshift(z);
+H_NLOS_G6 = load('Hest_NLOS.mat');
+H_NLOS_G6 = H_NLOS_G6.Hest;
+H_NLOS_G6 = H_NLOS_G6.';
+z = zeros(4,params.Q);
+z(:,params.ActiveQIndex) = (H_NLOS_G6);
+H_NLOS_G6 = ifftshift(z);
+
+
 clear z;
 
 dispConfigFile_Test(params);                 % display the parameters
@@ -42,20 +50,28 @@ BER_i = zeros(NsimPerSNR,length(SNR_list));
 figure, hold on;
 plot(abs(H_LOS_G1(:,:).'))
 legend('1','2','3','4');
+title('Groupe 1');
 
 figure, hold on;
-plot(abs(H_LOS_G2(:,:).'))
+plot(abs(H_NLOS_G1(:,:).'))
 legend('1','2','3','4');
-title('Groupe 2');
+title('Groupe 1 - NLOS');
+
+
+% figure, hold on;
+% plot(abs(H_LOS_G2(:,:).'))
+% legend('1','2','3','4');
+% title('Groupe 2');
 
 figure, hold on;
 plot(abs(H_LOS_G6(:,:).'))
 legend('1','2','3','4');
 title('Groupe 6');
 
-% figure, hold on;
-% h = ifftshift(H_LOS_G6(4,:));
-% plot(abs(h(params.ActiveQIndex)));
+figure, hold on;
+plot(abs(H_NLOS_G6(:,:).'))
+legend('1','2','3','4');
+title('Groupe 6');
 
 progress_indx = 0;
 for sim_idx = 1:NsimPerSNR
@@ -83,16 +99,16 @@ for sim_idx = 1:NsimPerSNR
         % 4. Channel propagation: 
         
         % USER 1
-        signal_rx_1 = channel_propagation4(params,signal_tx,H_LOS_G1(1:Nr,:),SNR,Nr);
-        [hz,Qsymb_rx_1] = receiver4(params,signal_rx_1,params.nData, preamble);
+        signal_rx_1 = channel_propagation4(params,signal_tx,H_NLOS_G1(1:4,:),SNR,Nr);
+        [hz,Qsymb_rx_1] = receiver4(params,signal_rx_1,params.nData, preamble,Nr);
         % 5. Demodulation:
         bits_rx_1 = demodulation(params,Qsymb_rx_1(2*params.nActiveQ+1:end),'qpsk');
         % compute BER
         bitErrorRate_1 = sum(abs(bits_tx - bits_rx_1),'all');
         
         % USER 2
-        signal_rx_2 = channel_propagation4(params,signal_tx,H_LOS_G6(1:Nr,:),SNR,Nr);
-        [hz,Qsymb_rx_2] = receiver4(params,signal_rx_2,params.nData, preamble);
+        signal_rx_2 = channel_propagation4(params,signal_tx,H_NLOS_G6(1:Nr,:),SNR,Nr);
+        [hz,Qsymb_rx_2] = receiver4(params,signal_rx_2,params.nData, preamble,Nr);
 %         y = testFunc(signal_tx,H_LOS_G1);
         % 5. Demodulation:
         bits_rx_2 = demodulation(params,Qsymb_rx_2(2*params.nActiveQ+1:end),'qpsk');       
