@@ -22,8 +22,8 @@
 %       symb_rx     : QAM symbols. dim = (N_qam_symb,1)
 %
 
-function [hz,symb_rx] = receiver_Test(params,signal_rx,Nsymb_ofdm, Preamble,pilot)
-
+function [hz,symb_rx] = receiver_Test(params,signal_rx,Preamble,pilot)
+Nsymb_ofdm = params.nData;
 k=size(signal_rx,1); 
 fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
 hz = zeros(k,1);
@@ -163,15 +163,15 @@ end
 %     grid on;
 %     title("Frequency domain estiamtion");
 
-    figure, hold on;
-    plot(abs(Hsum));
-    grid on;
-    title("Time domain estiamtion")
+%     figure, hold on;
+%     plot(abs(Hsum));
+%     grid on;
+%     title("Time domain estiamtion")
     
-    figure, hold on;
-    plot(abs(ifft(Hsum)));
-    grid on;
-    title("Time domain estiamtion - h(t)")
+%     figure, hold on;
+%     plot(abs(ifft(Hsum)));
+%     grid on;
+%     title("Time domain estiamtion - h(t)")
     
     %S_pilots = reshape(S_pilots,[],1);
     

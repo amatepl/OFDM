@@ -16,6 +16,7 @@
 
 function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     % **** YOUR CODE GOES HERE!!
+    
     % 1. Some constants:
     lambda = physconst('LightSpeed')/params.Fc;
     beta = 2*pi/lambda;
@@ -27,17 +28,12 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     signal_tx_col = reshape(signal_tx,Lcp+Q,[]);
     % Creation of the impulse response matrix
     impulse_response = zeros(Lcp+Q,Nr);
-    a = ones(2,Nr);                                   % attenuation factor
-    a(2,:) = 0.5*a(2,:);
-    phi = 2*pi*rand(2,Nr);                            % random phase
-    phi = mod(phi,2*pi);                              % map it to the range [0,2*pi]
-    z = lambda*(linspace(0,Nr-1,Nr)/2-(Nr-1)/4);      % z coordinate in the local zone
-    u = ones(2,Nr);                                   % angular transmission
-    u(1,:) = beta*cos(pi/6)*u(1,:);
-    u(2,:) = beta*cos(2*pi/3)*u(2,:);
+    a = ones(2,Nr);                                    % attenuation factor
+    a(2,:) = 0.5*a(2,:);                               % Constant attenuation
+    phi = 2*pi*rand(2,Nr);                             % random phase
+    phi = mod(phi,2*pi);                               % map it to the range [0,2*pi]
     impulse_response(1,:) = a(1,:);
-    %impulse_response(1,:) = a(1,:).*exp(1i*phi(1,:)).*exp(1i*u(1,:).*z);
-    impulse_response(4,:) = a(2,:).*exp(1i*phi(2,:)).*exp(1i*u(2,:).*z);
+    % impulse_response(4,:) = a(2,:).*exp(1i*phi(2,:));
     impulse_matrix = convolutionMatrix(impulse_response,Nr);
     
     % Convolution of the signal with the impulse matrix
@@ -52,36 +48,37 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     clear signal_rx_SIMO;
     clear impulse_response;
     
-    % 3. Noise computation
+    % 3. Noise addition
     transmitted_energy = norm(signal_tx(:))^2;           % energy of the signal
-    noise_energy = transmitted_energy/(10^(SNR/10));     % energy of noise
+    noise_energy = transmitted_energy/(2*10^(SNR/10));     % energy of noise
     noise_var = noise_energy/(length(signal_tx(:))-1);   % variance of noise to be added
     noise_std = sqrt(noise_var/2);                       % std. deviation of noise to be added
-    noise = noise_std*(randn(length(signal_tx),Nr)+1i*randn(length(signal_tx),Nr));      % noise
+    noise = noise_std*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));      % noise
+    
+
     
     % 4. STO addition
-    signal_rx = [zeros(Nr,STO), signal_rx(:,1:end-STO)];
-    %signal_rx = [signal_rx(end-STO+1:end,:); signal_rx(1:end-STO,:)];    
-    % Frequency offset (CFO)
+    signal_rx = [zeros(Nr,STO), signal_rx(:,1:end-STO)]; 
     
+    % 5. Frequency offset (CFO)
     % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-    delta_w = params.Fc*CFO/(2*pi);
+    delta_w = params.Fc*CFO*(2*pi);
     T = 1/params.B;
     n = 1:1:size(signal_rx,2);
     phi = exp(1i*delta_w*T*n);
     signal_rx = signal_rx.*phi;
     
-    signal_rx = signal_rx;%+noise.'; 
+    signal_rx = signal_rx+noise.'; 
     
-    % Matched filter + MMSE equalizer
-%     impulse_response = [zeros(STO,1); impulse_response(1:end-STO)];
-%     impulse_matrix = convolutionMatrix(impulse_response);
-%     Nb = 2 * params.ofdm.N_subcrr * params.modulation.Nbps;
-%     No = noise_energy/(Nb*2);
-%     signal_rx_col = reshape(signal_rx,Lcp+Q,[]);
-%     var1 = var(signal_rx);
-%     signal_rx_col = (2*No/var1+impulse_matrix'*impulse_matrix)\impulse_matrix'*signal_rx_col;
-%     signal_rx = reshape(signal_rx_col,size(signal_rx,1)*size(signal_rx,2),1).';
+    % 6. Matched filter + MMSE equalizer
+    % impulse_response = [zeros(STO,1); impulse_response(1:end-STO)];
+    % impulse_matrix = convolutionMatrix(impulse_response);
+    % Nb = 2 * params.ofdm.N_subcrr * params.modulation.Nbps;
+    % No = noise_energy/(Nb*2);
+    % signal_rx_col = reshape(signal_rx,Lcp+Q,[]);
+    % var1 = var(signal_rx);
+    % signal_rx_col = (2*No/var1+impulse_matrix'*impulse_matrix)\impulse_matrix'*signal_rx_col;
+    % signal_rx = reshape(signal_rx_col,size(signal_rx,1)*size(signal_rx,2),1).';
    
     
     % ---------------------------------------------------------------------

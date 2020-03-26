@@ -30,13 +30,13 @@ params.N_pilots = 126;
 params.N_zeros = 2;
 
 %% --- Local parameters
-SNR = 20;                           % Wanted SNR in dB
-STO = 500;                           % Time offset (switching unit vector)
+SNR = 0;                           % Wanted SNR in dB
+STO = 0;                           % Time offset (switching unit vector)
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-CFO = 20e-6;                        % Carrier frequency offset
+CFO = 0;                        % Carrier frequency offset
 % Nsymb_ofdm = 2;                   % number OFDM symbols to transmit
 Nsymb_ofdm = params.nData;    % number OFDM symbols to transmit
-Nr = 4;                             % number of receivers
+Nr = 1;                             % number of receivers
 
 % Nbps = params.modulation.Nbps;      % QAM modulation
 Nbps = 1;                          % BPSK modulation
@@ -106,5 +106,3 @@ title('Tx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
 subplot(1,2,2); plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
 title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
 bitErrorRate = sum(abs(bits_tx - bits_rx),'all') / length(bits_tx);
-disp('$$ Displaying results:');
-disp(['BER:', num2str(bitErrorRate)]);
