@@ -55,7 +55,7 @@ dispConfigFile_Test(params);                 % display the parameters
 
 % --- Local parameters ----
 Nsymb_ofdm = 10;     % number OFDM symbols to transmit
-NsimPerSNR = 50;    % number of simulations per SNR value
+NsimPerSNR = 10;    % number of simulations per SNR value
 Nbits = params.nData * params.nActiveQ * Nbps;
 Nr = 4;                             % number of receivers
 
