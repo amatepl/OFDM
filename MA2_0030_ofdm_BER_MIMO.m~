@@ -35,27 +35,29 @@ H_NLOS_G6 = ifftshift(z);
 
 clear z;
 
-H1 = fftshift(H_NLOS_G1,2);
+H1 = fftshift(H_LOS_G1);
 H1 = H1(:,params.ActiveQIndex);
 H1 = permute(H1,[1 3 2]);
 
-H2 = fftshift(H_NLOS_G6,2);
+H2 = fftshift(H_LOS_G6);
 H2 = H2(:,params.ActiveQIndex);
 H2 = permute(H2,[1 3 2]);
 
 H = [H1 H2];
 W = permute(H,[2 1 3]);
 
+test = 
 % Compute the pseudo inverse of the H for MIMO
 for i = 1:size(W,3)
     W(:,:,i) = pinv(H(:,:,i));
 end
 
+
 dispConfigFile_Test(params);                 % display the parameters
 
 % --- Local parameters ----
 Nsymb_ofdm = 10;     % number OFDM symbols to transmit
-NsimPerSNR = 50;    % number of simulations per SNR value
+NsimPerSNR = 10;    % number of simulations per SNR value
 Nbits = params.nData * params.nActiveQ * Nbps;
 Nr = 4;                             % number of receivers
 
@@ -125,7 +127,7 @@ for sim_idx = 1:NsimPerSNR
 %         signal_rx_1 = channel_propagation4(params,signal_tx1,H_LOS_G1(1:4,:),SNR,Nr);
 %         signal_rx_2 = channel_propagation4(params,signal_tx2,H_LOS_G6(1:Nr,:),SNR,Nr);
         
-        signal_rx = channel_propagationMIMO(params,signal_tx1,signal_tx2,H_NLOS_G1(1:4,:),H_NLOS_G6(1:Nr,:),SNR,Nr);
+        signal_rx = channel_propagationMIMO(params,signal_tx1,signal_tx2,H_LOS_G1(1:4,:),H_LOS_G6(1:Nr,:),SNR,Nr);
         
 %         figure, hold on;
 %         plot(abs(signal_rx_1(:,1,1)));

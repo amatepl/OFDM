@@ -50,15 +50,15 @@ function [symb_rx1, symb_rx2] = receiverMIMO(params,signal_rx,W,H1,H2,Nr)
         symb_rx2(:,i) = sum(W(:,2,:).*S(:,i,:),1);
     end
     
-    figure, hold on;
-    plot(abs(symb_rx1(:,1)));
-    title('Symb rx1 eqalized');
+%     figure, hold on;
+%     plot(abs(symb_rx1(:,1)));
+%     title('Symb rx1 eqalized');
+%     
+%     figure, hold on;
+%     plot(abs(symb_rx2(:,1)));
+%     title('Symb rx2 eqalized')
     
-    figure, hold on;
-    plot(abs(symb_rx2(:,1)));
-    title('Symb rx2 eqalized')
-    
-    keyboard
+%     keyboard
     
      % Zero forcing equalizer
 %     H1 = fftshift(H1,2);
