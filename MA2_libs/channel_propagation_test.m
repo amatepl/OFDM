@@ -49,14 +49,19 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     clear impulse_response;
     
     % 3. Noise addition
-    transmitted_energy = norm(signal_tx(:))^2;           % energy of the signal
-    noise_energy = transmitted_energy/(2*10^(SNR/10));     % energy of noise
-    noise_var = noise_energy/(length(signal_tx(:))-1);   % variance of noise to be added
-    noise_std = sqrt(noise_var/2);                       % std. deviation of noise to be added
-    noise = noise_std*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));      % noise
-    
+%     transmitted_energy = trapz(abs(signal_tx)).^2;           % energy of the signal
+%     noise_energy = transmitted_energy/(2*10^(SNR/10));     % energy of noise
+%     noise_var = noise_energy/(length(signal_tx));   % variance of noise to be added
+%     noise_std = sqrt(noise_var/2);                       % std. deviation of noise to be added
+%     noise = noise_std*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));      % noise
+    Nbits = (params.nPreamble+params.nData)*(params.nActiveQ)*params.Nbps;
+    signalEnergy = norm(signal_tx)^2;
+    Energybit = signalEnergy/Nbits;
+    Energybit = Energybit/2;
+    EbNoLin = 10^(SNR/10);
+    No = Energybit/EbNoLin;
+    noise = sqrt(No/2)*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));
 
-    
     % 4. STO addition
     signal_rx = [zeros(Nr,STO), signal_rx(:,1:end-STO)]; 
     

@@ -15,7 +15,7 @@
 %                     QAM constellation. dim=(N_qam_symb,1)
 %
    
-function [Qam_symb] = modulation(params,bits)
+function [Qam_symb] = modulation(params,bits,modulation)
     
 %     % Number of bits per symbol
 %     params.Nbps = params.modulation.params.Nbps;
@@ -23,7 +23,7 @@ Nsymb = size(bits,1)/params.Nbps; % Number of symbols
 bits2 = reshape(bits,params.Nbps,Nsymb)';
 
 
-switch params.modulation
+switch modulation
     
     case 'qpsk'
         
