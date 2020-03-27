@@ -32,6 +32,6 @@ function signal_rx = channel_propagation4(params,signal_tx,H,SNR,Nr)
     noise = noise_std.*(rand(size(signal_tx))+1i*rand(size(signal_tx)));      % noise
     
     % Noise added after the channel
-    signal_rx = signal_rx ;%+noise;    % Add noise to signal
+    signal_rx = signal_rx +noise;    % Add noise to signal
     
 end

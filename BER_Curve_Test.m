@@ -12,11 +12,11 @@ cfg = load('TestParam.mat');            % load configFile
 params = cfg.TestParam;                 % get the set of parameters
 dispConfigFile_Test(params);            % display the parameters
 params.N_pilots = 126;                  % add the number of pilots
-params.N_zeros = 2;                     % add the number of zero ofdm symbol
-params.SNR_list = -5:5:20;              % SNR list for BER curve
+params.N_zeros = 0;                     % add the number of zero ofdm symbol
+params.SNR_list = -5:5:15;              % SNR list for BER curve
 params.Nbps = 2;                        % Modulation order
 params.modulation = 'qpsk';
-NsimPerSNR = 10;                        % number of simulations per SNR value
+NsimPerSNR = 1000;                        % number of simulations per SNR value
 
 %% --- Local parameters
 STO = 0;                                % Time offset (switching unit vector)
@@ -25,7 +25,7 @@ CFO = 0;                                % Carrier frequency offset in ppm
 Nr = 1;                                 % number of receivers
 
 % Number of bits knowing the inactive subcarriers and the number of pilots
-Nbits = params.nData * (params.nActiveQ - params.N_pilots) * params.Nbps;
+Nbits = params.nData * (params.nActiveQ-params.N_pilots) * params.Nbps;
 frame_size = (params.nPreamble+params.nData+params.N_zeros)*(params.Q+params.LCP);
 Nsymb = (params.Q+params.LCP)*(params.nData+params.nPreamble);
 
@@ -58,7 +58,7 @@ for sim_idx = 1:NsimPerSNR
         signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
         
         % 5. CFO and STO estimation:
-        [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,0.5);
+        [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,1/(params.nPreamble+params.nData+params.N_zeros));
  
         % Average over the antennas
         STO_estimated = round(mean(STO_estimated,'all'));
@@ -102,6 +102,8 @@ grid on; hold on;
 % ber theoretical
 ber_theo = berawgn(params.SNR_list,'qam',2^(params.Nbps));
 semilogy(params.SNR_list,ber_theo,'--');
-legend('myBER','theoretical');
+legend('simulated','theoretical');
 xlabel('SNR dB');ylabel('Probability of error');
-xlim([-5 15]);
+xlim([-5 10]);
+s = sprintf('SISO OFDM modulation BER in presence of AWGN noise \n QPSK case');
+title(s);
