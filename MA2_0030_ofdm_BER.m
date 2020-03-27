@@ -43,6 +43,7 @@ Nsymb_ofdm = 10;     % number OFDM symbols to transmit
 NsimPerSNR = 10;    % number of simulations per SNR value
 Nbits = params.nData * params.nActiveQ * Nbps;
 Nr = 4;                             % number of receivers
+params.Nbps = 2;    % Nbps
 
 % define storage variables:
 BER_i = zeros(NsimPerSNR,length(SNR_list));
@@ -80,13 +81,13 @@ for sim_idx = 1:NsimPerSNR
         SNR = SNR_list(SNR_idx);
             
         % 1. Message, preamble and pilot construction
-        [Preamble, bits_data, ~] = build_message_test(params,Nbits,Nbps);
+        [Preamble, bits_data, ~] = build_message_test(params,Nbits);
 
         %bits_tx = vertcat(Preamble,bits_data);
         bits_tx = bits_data;
 
         % 2. Modulation of the preamble, message and pilot
-        [Qsymb_pre] = modulation(1,Preamble,'bpsk');      % Preamble modulation
+        [Qsymb_pre] = modulation(1,Preamble,'qpsk');      % Preamble modulation
         [Qsymb_data] = modulation(Nbps,bits_data,'qpsk');    % Message modulation
         
         % OFDM symbols [2 x preamble + message,1]

@@ -51,7 +51,7 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     % 3. Noise addition
     transmitted_energy = norm(signal_tx(:))^2;           % energy of the signal
     noise_energy = transmitted_energy/(2*10^(SNR/10));     % energy of noise
-    noise_var = noise_energy/(length(signal_tx(:))-1);   % variance of noise to be added
+    noise_var = noise_energy/(length(signal_tx(:)));   % variance of noise to be added
     noise_std = sqrt(noise_var/2);                       % std. deviation of noise to be added
     noise = noise_std*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));      % noise
     
@@ -68,7 +68,7 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     phi = exp(1i*delta_w*T*n);
     signal_rx = signal_rx.*phi;
     
-    signal_rx = signal_rx+noise.'; 
+    signal_rx = signal_tx+noise.'; 
     
     % 6. Matched filter + MMSE equalizer
     % impulse_response = [zeros(STO,1); impulse_response(1:end-STO)];
