@@ -79,7 +79,7 @@ for sim_idx = 1:NsimPerSNR
         [hz,Qsymb_rx] = receiver_Test(params,signal_rx, preamble,Qsymb_pilot);
 
         % 7. Demodulation:
-        bits_rx = demodulation(params,Qsymb_rx);
+        bits_rx = demodulation(params,Qsymb_rx,params.modulation);
         
         % compute BER
         bits_tx = bits_data;

@@ -28,6 +28,8 @@ params = cfg.TestParam;                    % get the set of parameters
 dispConfigFile_Test(params);                 % display the parameters
 params.N_pilots = 126;
 params.N_zeros = 2;
+params.Nbps = 1;                        % Modulation order
+params.modulation = 'bpsk';
 
 signal_tx = load('../ma2/sig_tx.mat'); % load singal_rx
 signal_tx = signal_tx.sig_tx;
@@ -80,8 +82,7 @@ rest = frame_size-STO_estimated;
 signal_rx = signal_rx_los(:,STO_estimated + 1:end-rest);
 signal_rx = reshape(signal_rx.',frame_size,size(signal_rx,1),[]);
 signal_rx = signal_rx(1:Nsymb,:,:);
-HNLOS = zeros(size(signal_rx,2),size(signal_rx,3));
-
+H = zeros(size(signal_rx,2),params.Q);
 for i = 1:size(signal_rx,3)
     signalrx = signal_rx(:,:,i).';
     CFO_estimated = estimationCFO(params,signalrx);
@@ -91,8 +92,10 @@ for i = 1:size(signal_rx,3)
     phi = exp(-1i*CFO_estimated*T*n);    
     signalrx = signalrx.*phi;
 
-    [hz,Qsymb_rx] = receiver_Test(params,signalrx,params.nData,Qsymb_pre(:,1).',Qsymb_pilot);
-    HNLOS(:,i) = hz;
+    [Hsave,Qsymb_rx] = receiver_Test(params,signalrx,Qsymb_pre(:,1),Qsymb_pilot);
+    H(:,params.ActiveQIndex) = Hsave;
+    figure;
+    plot(abs(fftshift(H.')))
     Qsymb_rx = -Qsymb_rx;
     % 5. Demodulation:
     bits_rx = demodulation(params,Qsymb_rx,'bpsk');
