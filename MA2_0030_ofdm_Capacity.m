@@ -35,11 +35,22 @@ H_NLOS_G6 = ifftshift(z);
 
 clear z;
 
-H1 = fftshift(H_NLOS_G1,2);
+Htype = 'NLOS';                     % NLOS or LOS
+
+switch (Htype)
+    case 'NLOS'
+        H1 = H_NLOS_G1;
+        H2 = H_NLOS_G6;
+    case 'LOS'
+        H1 = H_LOS_G1;
+        H2 = H_LOS_G6;
+end
+
+H1 = fftshift(H1,2);
 H1 = H1(:,params.ActiveQIndex);
 H1 = permute(H1,[1 3 2]);
 
-H2 = fftshift(H_NLOS_G6,2);
+H2 = fftshift(H2,2);
 H2 = H2(:,params.ActiveQIndex);
 H2 = permute(H2,[1 3 2]);
 
@@ -54,14 +65,10 @@ end
 dispConfigFile_Test(params);                 % display the parameters
 
 % --- Local parameters ----
-Nsymb_ofdm = 10;     % number OFDM symbols to transmit
-NsimPerSNR = 10;    % number of simulations per SNR value
+
 Nbits = params.nData * params.nActiveQ * Nbps;
 Nr = 4;                             % number of receivers
 Nt = 1;                             % number of transmitters
-
-% define storage variables:
-BER_i = zeros(NsimPerSNR,length(SNR_list));
 
 % SIMO
 
@@ -77,7 +84,7 @@ for nAntenas = 1:4
     end
     for SNR_idx = 1:length(SNR_list)
         SNR = SNR_list(SNR_idx);
-        C(nAntenas,SNR_idx) = mean(log2(1 + 10^(SNR/10)*alpha.^2));
+        C(nAntenas,SNR_idx) = mean(log2(1 + (10^(SNR/10)*alpha.^2)));
     end
     
     progress = round(progress_indx/4*100);
@@ -90,7 +97,7 @@ end
 C_MIMO = zeros(1,length(SNR_list));
 alpha = zeros(2,params.nActiveQ);
     for Qi = 1:params.nActiveQ
-        [~,S,~] = svd(H(:,:,Qi));
+        [~,S,~] = svd(H(1:4,:,Qi));
         alpha(:,Qi) = S(1:2);
     end
     for SNR_idx = 1:length(SNR_list)
@@ -103,7 +110,7 @@ alpha = zeros(2,params.nActiveQ);
 % -------------------------------------------------------------------------
 
 disp('$$ Displaying results:');
-figure;hold on;
+figure('Name',join(['Capacity',Htype]));hold on;
 % semilogy(SNR_list,mean(BER_i,1));
 plot(SNR_list,C.');
 plot(SNR_list,C_MIMO.')
@@ -112,5 +119,6 @@ grid on; hold on;
 ber_theo = berawgn(SNR_list,'qam',2^(Nbps));
 % semilogy(SNR_list,ber_theo,'--');
 legend('M_T = 1, M_R = 1','M_T = 1, M_R = 2','M_T = 1, M_R = 3','M_T = 1, M_R = 4','M_T = 2, M_R = 4');
-xlabel('SNR dB');ylabel('Capacity');
+xlabel('SNR dB');ylabel('Capacity in bps/Hz');
 xlim([-5 15]);
+title(join(['Shanon capacity for ',Htype,' propagation']));
