@@ -68,7 +68,7 @@ Qsymb_preamble = reshape(Qsymb_pre,[],1);
 Qsymb_tx = vertcat(Qsymb_preamble,Qsymb_data);
 
 % signal_rx = signal_rx_los(:,1:50*frame_size);
-signal_rx = signal_rx_los(1,1:50*frame_size);
+signal_rx = signal_rx_los(:,1:50*frame_size);
 
 % 4. OFDM Receiver:
 STO_estimated = estimationSTO(params,signal_rx,25);
@@ -80,13 +80,14 @@ STO_estimated = round(mean(STO_estimated,'all'));
 %signal_rx = signal_rx(:,STO_estimated + ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
 rest = frame_size-STO_estimated;
 signal_rx = signal_rx_los(:,STO_estimated + 1:end-rest);
-signal_rx = reshape(signal_rx.',frame_size,size(signal_rx,1),[]);
-signal_rx = signal_rx(1:Nsymb,:,:);
-H = zeros(size(signal_rx,2),params.Q);
+signal_rx = reshape(signal_rx,size(signal_rx,1),frame_size,[]);
+%signal_rx = signal_rx(:,1:frame_size);
+signal_rx = signal_rx(:,1:Nsymb,:);
+H = zeros(size(signal_rx,1),params.Q);
 for i = 1:size(signal_rx,3)
-    signalrx = signal_rx(:,:,i).';
+    signalrx = signal_rx(:,:,i);
     CFO_estimated = estimationCFO(params,signalrx);
-    CFO_estimated = mean(CFO_estimated,'all');
+    %CFO_estimated = mean(CFO_estimated,'all');
     T = 1/params.B;
     n = 1:1:size(signalrx,2);
     phi = exp(-1i*CFO_estimated*T*n);    
@@ -94,12 +95,14 @@ for i = 1:size(signal_rx,3)
 
     [Hsave,Qsymb_rx] = receiver_Test(params,signalrx,Qsymb_pre(:,1),Qsymb_pilot);
     H(:,params.ActiveQIndex) = Hsave;
-    figure;
-    plot(abs(fftshift(H.')))
+    H = fftshift(H);
+    plot(abs(H.'));
     Qsymb_rx = -Qsymb_rx;
     % 5. Demodulation:
     bits_rx = demodulation(params,Qsymb_rx,'bpsk');
 end
+
+save("H_NLOS_G1_bis","H");
 
 
 
