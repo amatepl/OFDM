@@ -39,25 +39,16 @@ clear z;
 dispConfigFile_Test(params);                 % display the parameters
 
 % --- Local parameters ----
-
-%% Parameters to set ---------------------------------------
-NsimPerSNR = 10;    % number of simulations per SNR value
-Nr = 4;                             % number of receivers
-Htype = 'NLOS';                     % NLOS or LOS
-%% ---------------------------------------------------------
-
 Nsymb_ofdm = 10;     % number OFDM symbols to transmit
+NsimPerSNR = 10;    % number of simulations per SNR value
 Nbits = params.nData * params.nActiveQ * Nbps;
-
+Nr = 2;                             % number of receivers
+Htype = 'NLOS'
 params.Nbps = 2;    % Nbps
 params.modulation = 'qpsk';
 
-switch (Htype)
-    case 'NLOS'
-        H = H_NLOS_G1;
-    case 'LOS'
-        H = H_LOS_G1;
-end
+swit
+H = H_NLOS_G1;
 
 % define storage variables:
 BER_i = zeros(NsimPerSNR,length(SNR_list));
@@ -130,5 +121,4 @@ xlabel('SNR dB');ylabel('Probability of error');
 xlim([-5 15]);
 
 fpath = './Results';
-filename = join(['SIMO_',Htype,'_',num2str(Nr),'.mat']);
-save(fullfile(fpath,Htype,filename), 'BER_i','-mat');
+save(fullfile(fpath, filename), 'jpeg');
