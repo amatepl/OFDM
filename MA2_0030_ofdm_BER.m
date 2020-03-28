@@ -103,7 +103,7 @@ for sim_idx = 1:NsimPerSNR
         signal_rx_1 = channel_propagation4(params,signal_tx,H(1:Nr,:),SNR,Nr);
         [hz,Qsymb_rx_1] = receiver4(params,signal_rx_1,params.nData, preamble,Nr);
         % 5. Demodulation:
-        bits_rx_1 = demodulation(params,Qsymb_rx_1(2*params.nActiveQ+1:end));
+        bits_rx_1 = demodulation(params,Qsymb_rx_1(2*params.nActiveQ+1:end),'qpsk');
         % compute BER
         bitErrorRate_1 = sum(abs(bits_tx - bits_rx_1),'all');
         

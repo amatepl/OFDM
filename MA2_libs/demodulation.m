@@ -13,7 +13,7 @@
 %           bit_rx  : received bits. dim=(Nbits,1)
 %
    
-function bits_rx = demodulation(params,symb_rx)
+function bits_rx = demodulation(params,symb_rx,modulation)
    
 % INPUTS:
 % - symb_rx : vector of input symbols (variance 1)
@@ -23,7 +23,7 @@ function bits_rx = demodulation(params,symb_rx)
 % OUTPUTS:
 % - bit_rx : vector of ouput bits
 
-    switch params.modulation
+    switch modulation
         
         case 'qpsk'
             

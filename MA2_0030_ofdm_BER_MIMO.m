@@ -143,14 +143,14 @@ for sim_idx = 1:NsimPerSNR
         
         % USER 1
         % 5. Demodulation:
-        bits_rx_1 = demodulation(params,Qsymb_rx_1(2*params.nActiveQ+1:end));
+        bits_rx_1 = demodulation(params,Qsymb_rx_1(2*params.nActiveQ+1:end),'qpsk');
         % compute BER
         bitErrorRate_1 = sum(abs(bits_tx1 - bits_rx_1),'all');
         
         % USER 2
        
         % 5. Demodulation:
-        bits_rx_2 = demodulation(params,Qsymb_rx_2(2*params.nActiveQ+1:end));       
+        bits_rx_2 = demodulation(params,Qsymb_rx_2(2*params.nActiveQ+1:end),'qpsk');       
         % compute BER
         bitErrorRate_2 = sum(abs(bits_tx2 - bits_rx_2),'all');
              

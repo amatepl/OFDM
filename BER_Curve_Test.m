@@ -14,9 +14,9 @@ dispConfigFile_Test(params);            % display the parameters
 params.N_pilots = 126;                  % add the number of pilots
 params.N_zeros = 0;                     % add the number of zero ofdm symbol
 params.SNR_list = -5:5:15;              % SNR list for BER curve
-params.Nbps = 2;                        % Modulation order
-params.modulation = 'qpsk';
-NsimPerSNR = 1000;                        % number of simulations per SNR value
+params.Nbps = 1;                        % Modulation order
+params.modulation = 'bpsk';
+NsimPerSNR = 100;                        % number of simulations per SNR value
 
 %% --- Local parameters
 STO = 0;                                % Time offset (switching unit vector)
@@ -38,9 +38,9 @@ Nsymb = (params.Q+params.LCP)*(params.nData+params.nPreamble);
 [Preamble, bits_data, bits_pilot] = build_message_test(params,Nbits);
  
 % 2. Modulation of the preamble, message and pilot
-[Qsymb_pre] = modulation(params,Preamble);      % Preamble modulation
-[Qsymb_data] = modulation(params,bits_data);    % Message modulation
-[Qsymb_pilot] = modulation(params,bits_pilot);  % Pilot modulation             
+[Qsymb_pre] = modulation(params,Preamble,params.modulation);      % Preamble modulation
+[Qsymb_data] = modulation(params,bits_data,params.modulation);    % Message modulation
+[Qsymb_pilot] = modulation(params,bits_pilot,params.modulation);  % Pilot modulation             
 
 % 3. OFDM Transmitter: 
 [signal_tx] = transmitter_Test(params, Qsymb_pre, Qsymb_data, Qsymb_pilot);
@@ -79,7 +79,7 @@ for sim_idx = 1:NsimPerSNR
         [hz,Qsymb_rx] = receiver_Test(params,signal_rx, preamble,Qsymb_pilot);
 
         % 7. Demodulation:
-        bits_rx = demodulation(params,Qsymb_rx);
+        bits_rx = demodulation(params,Qsymb_rx,params.modulation);
         
         % compute BER
         bits_tx = bits_data;
@@ -100,7 +100,7 @@ figure;
 semilogy(params.SNR_list,mean(BER_i,1));
 grid on; hold on;
 % ber theoretical
-ber_theo = berawgn(params.SNR_list,'qam',2^(params.Nbps));
+ber_theo = berawgn(params.SNR_list,'pé&am',2^(params.Nbps));
 semilogy(params.SNR_list,ber_theo,'--');
 legend('simulated','theoretical');
 xlabel('SNR dB');ylabel('Probability of error');
