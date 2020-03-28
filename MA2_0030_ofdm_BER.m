@@ -63,14 +63,14 @@ end
 BER_i = zeros(NsimPerSNR,length(SNR_list));
 
 figure, hold on;
-plot(abs(H_LOS_G1(:,:).'))
+plot(abs(H(:,:).'))
 legend('1','2','3','4');
 title('Groupe 1');
 
-figure, hold on;
-plot(abs(H_NLOS_G1(:,:).'))
-legend('1','2','3','4');
-title('Groupe 1 - NLOS');
+% figure, hold on;
+% plot(abs(H_NLOS_G1(:,:).'))
+% legend('1','2','3','4');
+% title('Groupe 1 - NLOS');
 
 
 
