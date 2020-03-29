@@ -13,10 +13,10 @@ params = cfg.TestParam;                 % get the set of parameters
 dispConfigFile_Test(params);            % display the parameters
 params.N_pilots = 126;                  % add the number of pilots
 params.N_zeros = 0;                     % add the number of zero ofdm symbol
-params.SNR_list = -5:1:10;              % SNR list for BER curve
+params.SNR_list = -5:1:15;              % SNR list for BER curve
 params.Nbps = 1;                        % Modulation order
 params.modulation = 'bpsk';
-NsimPerSNR = 30;                        % number of simulations per SNR value
+NsimPerSNR = 10;                        % number of simulations per SNR value
 
 %% --- Local parameters
 STO = 0;                                % Time offset (switching unit vector)
@@ -96,14 +96,17 @@ end
 % -------------------------------------------------------------------------
 
 disp('$$ Displaying results:');
+BER2_i = load("BER2COMP_QPSK.mat").BER_i;
 figure;
 semilogy(params.SNR_list,mean(BER_i,1));
 grid on; hold on;
+semilogy(params.SNR_list,mean(BER2_i,1));
+hold on;
 % ber theoretical
 ber_theo = berawgn(params.SNR_list,'psk',2^(params.Nbps),'non-diff');
 semilogy(params.SNR_list,ber_theo,'--');
-legend('simulated','theoretical');
+legend('MPC BPSK','MPC_QPSK','theoretical');
 xlabel('SNR dB');ylabel('Probability of error');
 xlim([-5 13]);
-s = sprintf('SISO OFDM modulation BER in presence of AWGN noise \n BPSK case');
+s = sprintf("SISO OFDM modulation BER in presence of 2 MPC's");
 title(s);
