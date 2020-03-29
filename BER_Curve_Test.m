@@ -13,10 +13,10 @@ params = cfg.TestParam;                 % get the set of parameters
 dispConfigFile_Test(params);            % display the parameters
 params.N_pilots = 126;                  % add the number of pilots
 params.N_zeros = 0;                     % add the number of zero ofdm symbol
-params.SNR_list = -5:5:15;              % SNR list for BER curve
+params.SNR_list = -5:5:13;              % SNR list for BER curve
 params.Nbps = 1;                        % Modulation order
 params.modulation = 'bpsk';
-NsimPerSNR = 100;                        % number of simulations per SNR value
+NsimPerSNR = 10;                        % number of simulations per SNR value
 
 %% --- Local parameters
 STO = 0;                                % Time offset (switching unit vector)
@@ -76,9 +76,7 @@ for sim_idx = 1:NsimPerSNR
         preamble = Qsymb_pre(1:params.nActiveQ);
 
         % 6. OFDM Receiver:
-        [hz,Qsymb_rx] = receiver_Test(params,signal_rx, preamble,Qsymb_pilot);
-
-        % 7. Demodulation:
+        [hz,Qsymb_rx] = receiver_Test(params,signal_rx, preamble,Qsymb_pilot);        % 7. Demodulation:
         bits_rx = demodulation(params,Qsymb_rx,params.modulation);
         
         % compute BER
@@ -100,10 +98,10 @@ figure;
 semilogy(params.SNR_list,mean(BER_i,1));
 grid on; hold on;
 % ber theoretical
-ber_theo = berawgn(params.SNR_list,'pé&am',2^(params.Nbps));
+ber_theo = berawgn(params.SNR_list,'psk',2^(params.Nbps),'non-diff');
 semilogy(params.SNR_list,ber_theo,'--');
 legend('simulated','theoretical');
 xlabel('SNR dB');ylabel('Probability of error');
-xlim([-5 10]);
-s = sprintf('SISO OFDM modulation BER in presence of AWGN noise \n QPSK case');
+xlim([-5 13]);
+s = sprintf('SISO OFDM modulation BER in presence of AWGN noise \n BPSK case');
 title(s);
