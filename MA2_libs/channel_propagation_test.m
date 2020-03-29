@@ -29,11 +29,31 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     % Creation of the impulse response matrix
     impulse_response = zeros(Lcp+Q,Nr);
     a = ones(2,Nr);                                    % attenuation factor
-    a(2,:) = 0.5*a(2,:);                               % Constant attenuation
-    phi = 2*pi*rand(2,Nr);                             % random phase
+    a(2,:) = 0.4*a(2,:);                               % Constant attenuation
+    phi = 2*pi*randn(1,Nr);                             % random phase
     phi = mod(phi,2*pi);                               % map it to the range [0,2*pi]
     impulse_response(1,:) = a(1,:);
-    impulse_response(1000,:) = a(2,:).*exp(1i*phi(2,:));
+    impulse_response(2,:) = a(2,:).*exp(1i*phi(1,:));
+    h = impulse_response(1:params.Q);
+    H1 = fft(h,params.Q);
+    H = zeros(params.Q,1);
+    H(params.ActiveQIndex) = H1(params.ActiveQIndex);
+    
+%     figure;
+%     subplot(2,1,1);
+%     stem(0:params.Q-1,abs(h));
+%     xlim([0 10])
+%     xlabel("time");
+%     ylabel("|h(t)|");
+%     grid on;
+%     subplot(2,1,2);
+%     plot(abs(fftshift(H)));
+%     xlabel("frequency (bins)");
+%     ylabel("|H(f)|");
+%     grid on;
+%     sgtitle("Channel impulse response in time and frequency domain");
+    
+    
     impulse_matrix = convolutionMatrix(impulse_response,Nr);
     
     % Convolution of the signal with the impulse matrix
@@ -80,7 +100,7 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
 %     phi = exp(1i*delta_w*T*n);
 %     signal_rx = signal_rx.*phi;
     
-    signal_rx = signal_tx;%+noise.'; 
+    signal_rx = signal_rx;%+noise.'; 
     
     % 6. Matched filter + MMSE equalizer
     % impulse_response = [zeros(STO,1); impulse_response(1:end-STO)];

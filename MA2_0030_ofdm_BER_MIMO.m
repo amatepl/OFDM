@@ -43,7 +43,7 @@ dispConfigFile_Test(params);                 % display the parameters
 % --- Local parameters ----
 
 %% Parameters to set ---------------------------------------
-NsimPerSNR = 10;    % number of simulations per SNR value
+NsimPerSNR = 100;    % number of simulations per SNR value
 Htype = 'NLOS';                     % NLOS or LOS
 %% ---------------------------------------------------------
 
