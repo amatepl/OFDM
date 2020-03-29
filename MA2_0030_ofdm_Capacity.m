@@ -35,7 +35,7 @@ H_NLOS_G6 = ifftshift(z);
 
 clear z;
 
-Htype = 'NLOS';                     % NLOS or LOS
+Htype = 'LOS';                     % NLOS or LOS
 
 switch (Htype)
     case 'NLOS'
@@ -94,6 +94,12 @@ end
 
 % MIMO
 
+figure, hold on;
+title('Shanon capacity for a MIMO system');
+legend('LOS','NLOS');
+xlabel('SNR dB');ylabel('Capacity in bps/Hz');
+xlim([-5 15]);
+
 C_MIMO = zeros(1,length(SNR_list));
 alpha = zeros(2,params.nActiveQ);
     for Qi = 1:params.nActiveQ
@@ -105,6 +111,8 @@ alpha = zeros(2,params.nActiveQ);
         C_MIMO(1,SNR_idx) = mean(sum(log2(1 + (10^(SNR/10)*alpha.^2)/2),1));
     end
 
+    
+    
 % -------------------------------------------------------------------------
 % -------- Displaying results
 % -------------------------------------------------------------------------
@@ -112,13 +120,13 @@ alpha = zeros(2,params.nActiveQ);
 disp('$$ Displaying results:');
 figure('Name',join(['Capacity',Htype]));hold on;
 % semilogy(SNR_list,mean(BER_i,1));
-plot(SNR_list,C.');
+% plot(SNR_list,C.');
 plot(SNR_list,C_MIMO.')
 grid on; hold on;
 % ber theoretical
 ber_theo = berawgn(SNR_list,'qam',2^(Nbps));
 % semilogy(SNR_list,ber_theo,'--');
-legend('M_T = 1, M_R = 1','M_T = 1, M_R = 2','M_T = 1, M_R = 3','M_T = 1, M_R = 4','M_T = 2, M_R = 4');
+legend('M_T = 1, M_R = 1','M_T = 1, M_R = 2','M_T = 1, M_R = 3','M_T = 1, M_R = 4');%,'M_T = 2, M_R = 4');
 xlabel('SNR dB');ylabel('Capacity in bps/Hz');
 xlim([-5 15]);
 title(join(['Shanon capacity for ',Htype,' propagation']));
