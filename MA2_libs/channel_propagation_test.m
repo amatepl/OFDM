@@ -33,7 +33,7 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     phi = 2*pi*rand(2,Nr);                             % random phase
     phi = mod(phi,2*pi);                               % map it to the range [0,2*pi]
     impulse_response(1,:) = a(1,:);
-    % impulse_response(4,:) = a(2,:).*exp(1i*phi(2,:));
+    impulse_response(1000,:) = a(2,:).*exp(1i*phi(2,:));
     impulse_matrix = convolutionMatrix(impulse_response,Nr);
     
     % Convolution of the signal with the impulse matrix
@@ -62,26 +62,25 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
 %     noise_var = noise_energy/(length(signal_tx));   % variance of noise to be added
 %     noise_std = sqrt(noise_var/2);                       % std. deviation of noise to be added
 %     noise = noise_std*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));      % noise
-    Nbits = (params.nPreamble+params.nData)*(params.nActiveQ+102)*params.Nbps;
+    Nbits = (params.nPreamble+params.nData)*(params.nActiveQ)*params.Nbps;
     signalEnergy = norm(signal_tx)^2;
     Energybit = signalEnergy/Nbits;
-    Energybit = Energybit/2;
     EbNoLin = 10^(SNR/10);
     No = Energybit/EbNoLin;
     noise = sqrt(No/2)*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));
 
     % 4. STO addition
-    signal_rx = [zeros(Nr,STO), signal_rx(:,1:end-STO)]; 
+%     signal_rx = [zeros(Nr,STO), signal_rx(:,1:end-STO)]; 
     
     % 5. Frequency offset (CFO)
     % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-    delta_w = params.Fc*CFO*(2*pi);
-    T = 1/params.B;
-    n = 1:1:size(signal_rx,2);
-    phi = exp(1i*delta_w*T*n);
-    signal_rx = signal_rx.*phi;
+%     delta_w = params.Fc*CFO*(2*pi);
+%     T = 1/params.B;
+%     n = 1:1:size(signal_rx,2);
+%     phi = exp(1i*delta_w*T*n);
+%     signal_rx = signal_rx.*phi;
     
-    signal_rx = signal_tx+noise.'; 
+    signal_rx = signal_tx;%+noise.'; 
     
     % 6. Matched filter + MMSE equalizer
     % impulse_response = [zeros(STO,1); impulse_response(1:end-STO)];
