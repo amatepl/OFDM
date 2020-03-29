@@ -13,10 +13,10 @@ params = cfg.TestParam;                 % get the set of parameters
 dispConfigFile_Test(params);            % display the parameters
 params.N_pilots = 126;                  % add the number of pilots
 params.N_zeros = 0;                     % add the number of zero ofdm symbol
-params.SNR_list = -5:5:13;              % SNR list for BER curve
+params.SNR_list = -5:1:10;              % SNR list for BER curve
 params.Nbps = 1;                        % Modulation order
 params.modulation = 'bpsk';
-NsimPerSNR = 10;                        % number of simulations per SNR value
+NsimPerSNR = 30;                        % number of simulations per SNR value
 
 %% --- Local parameters
 STO = 0;                                % Time offset (switching unit vector)
@@ -58,25 +58,27 @@ for sim_idx = 1:NsimPerSNR
         signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
         
         % 5. CFO and STO estimation:
-        [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,1/(params.nPreamble+params.nData+params.N_zeros));
- 
-        % Average over the antennas
-        STO_estimated = round(mean(STO_estimated,'all'));
-        CFO_estimated = mean(CFO_estimated,'all');
-        
-        % STO correction
-        signal_rx = signal_rx(:,STO_estimated+ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
-        
-        % CFO correction
-        T = 1/params.B;
-        n = 1:1:Nsymb;
-        phi = exp(1i*CFO_estimated*T*n);    
-        signal_rx = signal_rx.*phi;
+%         [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,1/(params.nPreamble+params.nData+params.N_zeros));
+%  
+%         % Average over the antennas
+%         STO_estimated = round(mean(STO_estimated,'all'));
+%         CFO_estimated = mean(CFO_estimated,'all');
+%         
+%         % STO correction
+%         signal_rx = signal_rx(:,STO_estimated+ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
+%         
+%         % CFO correction
+%         T = 1/params.B;
+%         n = 1:1:Nsymb;
+%         phi = exp(1i*CFO_estimated*T*n);    
+%         signal_rx = signal_rx.*phi;
 
         preamble = Qsymb_pre(1:params.nActiveQ);
 
         % 6. OFDM Receiver:
-        [hz,Qsymb_rx] = receiver_Test(params,signal_rx, preamble,Qsymb_pilot);        % 7. Demodulation:
+        %[hz,Qsymb_rx] = receiver_Test(params,signal_rx, preamble,Qsymb_pilot);  
+        Qsymb_rx = simpleReceiver(params,signal_rx);
+        % 7. Demodulation:
         bits_rx = demodulation(params,Qsymb_rx,params.modulation);
         
         % compute BER

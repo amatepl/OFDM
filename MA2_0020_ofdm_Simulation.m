@@ -28,9 +28,11 @@ params = cfg.TestParam;                    % get the set of parameters
 dispConfigFile_Test(params);                 % display the parameters
 params.N_pilots = 126;
 params.N_zeros = 2;
+params.Nbps = 2;                        % Modulation order
+params.modulation = 'qpsk';
 
 %% --- Local parameters
-SNR = 0;                           % Wanted SNR in dB
+SNR = 10;                           % Wanted SNR in dB
 STO = 0;                           % Time offset (switching unit vector)
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
 CFO = 0;                        % Carrier frequency offset
@@ -51,15 +53,15 @@ Nsymb = (params.Q+params.LCP)*(params.nData+params.nPreamble);
 % -------------------------------------------------------------------------
 
 % 1. Message, preamble and pilot construction
-[Preamble, bits_data, bits_pilot] = build_message_test(params,Nbits,Nbps);
+[Preamble, bits_data, bits_pilot] = build_message_test(params,Nbits);
 
 %bits_tx = vertcat(Preamble,bits_data);
 bits_tx = bits_data;
  
 % 2. Modulation of the preamble, message and pilot
-[Qsymb_pre] = modulation(Nbps,Preamble,'bpsk');      % Preamble modulation
-[Qsymb_data] = modulation(Nbps,bits_data,'bpsk');    % Message modulation
-[Qsymb_pilot] = modulation(Nbps,bits_pilot,'bpsk');  % Pilot modulation
+[Qsymb_pre] = modulation(params,Preamble,params.modulation);      % Preamble modulation
+[Qsymb_data] = modulation(params,bits_data,params.modulation);    % Message modulation
+[Qsymb_pilot] = modulation(params,bits_pilot,params.modulation);  % Pilot modulation
 % OFDM symbols [2 x preamble + message,1]
 Qsymb_tx = vertcat(Qsymb_pre,Qsymb_data);             
 
@@ -78,18 +80,19 @@ signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
 
 signal_rx = signal_rx(:,STO_estimated+ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
 
-T = 1/params.B;
-n = 1:1:Nsymb;
-phi = exp(1i*CFO_estimated*T*n);    
-signal_rx = signal_rx.*phi;
+% T = 1/params.B;
+% n = 1:1:Nsymb;
+% phi = exp(1i*CFO_estimated*T*n);    
+% signal_rx = signal_rx.*phi;
 
 % signal_rx = horzcat(signal_rx(STO_estimated+1:end),zeros(1,STO_estimated));
 preamble = Qsymb_pre(1:params.nActiveQ);
 
-[hz,Qsymb_rx] = receiver_Test(params,signal_rx,params.nData, preamble,Qsymb_pilot);
+% [hz,Qsymb_rx] = receiver_Test(params,signal_rx, preamble,Qsymb_pilot);
+Qsymb_rx = simpleReceiver(params,signal_rx);
 
 % 5. Demodulation:
-bits_rx = demodulation(params,Qsymb_rx,'bpsk');
+bits_rx = demodulation(params,Qsymb_rx,params.modulation);
 
 
 % -------------------------------------------------------------------------

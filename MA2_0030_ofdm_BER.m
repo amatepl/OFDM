@@ -42,8 +42,8 @@ dispConfigFile_Test(params);                 % display the parameters
 
 %% Parameters to set ---------------------------------------
 NsimPerSNR = 10;    % number of simulations per SNR value
-Nr = 4;                             % number of receivers
-Htype = 'NLOS';                     % NLOS or LOS
+Nr = 1;                             % number of receivers
+Htype = 'NLOS';                      % NLOS or LOS
 %% ---------------------------------------------------------
 
 Nsymb_ofdm = 10;     % number OFDM symbols to transmit
