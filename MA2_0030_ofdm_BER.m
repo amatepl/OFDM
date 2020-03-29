@@ -129,6 +129,6 @@ legend('myBER','theoretical');
 xlabel('SNR dB');ylabel('Probability of error');
 xlim([-5 15]);
 
-fpath = './Results';
-filename = join(['SIMO_',Htype,'_',num2str(Nr),'.mat']);
-save(fullfile(fpath,Htype,filename), 'BER_i','-mat');
+% fpath = './Results';
+% filename = join(['SIMO_',Htype,'_',num2str(Nr),'.mat']);
+% save(fullfile(fpath,Htype,filename), 'BER_i','-mat');
