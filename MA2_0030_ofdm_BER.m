@@ -41,9 +41,9 @@ dispConfigFile_Test(params);                 % display the parameters
 % --- Local parameters ----
 
 %% Parameters to set ---------------------------------------
-NsimPerSNR = 10000;    % number of simulations per SNR value
+NsimPerSNR = 100;    % number of simulations per SNR value
 Nr = 4;                             % number of receivers
-Htype = 'LOS';                      % NLOS or LOS
+Htype = 'NLOS';                      % NLOS or LOS
 %% ---------------------------------------------------------
 
 Nsymb_ofdm = 10;     % number OFDM symbols to transmit
@@ -127,8 +127,8 @@ ber_theo = berawgn(SNR_list,'qam',2^(Nbps));
 semilogy(SNR_list,ber_theo,'--');
 legend('myBER','theoretical');
 xlabel('SNR dB');ylabel('Probability of error');
-xlim([-5 15]);
-
-fpath = './Results';
-filename = join(['SIMO_',Htype,'_',num2str(Nr),'.mat']);
-save(fullfile(fpath,Htype,filename), 'BER_i','-mat');
+xlim([-5 20]);
+ylim([10^(-5) 1]);
+% fpath = './Results';
+% filename = join(['SIMO_',Htype,'_',num2str(Nr),'.mat']);
+% save(fullfile(fpath,Htype,filename), 'BER_i','-mat');
