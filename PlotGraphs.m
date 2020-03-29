@@ -6,7 +6,7 @@ SNR_list = cfg.params.SNR_list;                    % get the set of parameters
 addpath(genpath('Results'));           % add data
 
 %% Paramters to set ------------------------------
-Htype = 'NLOS';          % Can be LOS or NLOS
+Htype = 'LOS';          % Can be LOS or NLOS
 System = 'SIMO';        % SIMO or MIMO
 %% -----------------------------------------------
 Nreceivers = 4;
