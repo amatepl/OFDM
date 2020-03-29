@@ -29,7 +29,7 @@ function signal_rx = channel_propagation4(params,signal_tx,H,SNR,Nr)
     noise_energy = transmitted_energy/(2*10^(SNR/10));     % energy of noise
     noise_var = noise_energy/(params.nActiveQ*(params.nData + params.nPreamble));   % variance of noise to be added
     noise_std = sqrt(noise_var/2);                       % std. deviation of noise to be added
-    noise = noise_std.*(rand(size(signal_tx))+1i*rand(size(signal_tx)));      % noise
+    noise = noise_std.*(rand([size(signal_tx),Nr])+1i*rand([size(signal_tx),Nr]));      % noise
     
     % Noise added after the channel
     signal_rx = signal_rx +noise;    % Add noise to signal

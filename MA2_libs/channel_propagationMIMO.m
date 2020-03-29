@@ -33,8 +33,8 @@ function signal_rx = channel_propagationMIMO(params,signal_tx1,signal_tx2,H1,H2,
     noise_energy = transmitted_energy/(2*10^(SNR/10));     % energy of noise
     noise_var = noise_energy/(params.nActiveQ*(params.nData + params.nPreamble));   % variance of noise to be added
     noise_std = sqrt(noise_var/2);                       % std. deviation of noise to be added
-    noise1 = noise_std.*(rand(size(signal_tx1))+1i*rand(size(signal_tx1)));      % noise
-    noise2 = noise_std.*(rand(size(signal_tx1))+1i*rand(size(signal_tx1)));      % noise
+    noise1 = noise_std.*(rand([size(signal_tx1),Nr])+1i*rand([size(signal_tx1),Nr]));      % noise
+    noise2 = noise_std.*(rand([size(signal_tx1),Nr])+1i*rand([size(signal_tx1),Nr]));      % noise
     
     % Noise added after the channel
     signal_rx = signal_rx1 + signal_rx2 +noise1;% + noise2;    % Add noise to signal
