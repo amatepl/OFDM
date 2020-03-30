@@ -32,20 +32,22 @@ function [signal_tx] = transmitter_Test(params, symb_pre,symb_tx, symb_pilot)
 
     symb_tx = reshape(symb_tx,[],params.nData);
     
-    % Add pilots
-    symb_tx_1 = symb_tx(1:size(symb_tx)/2,:);
-    symb_tx_2 = symb_tx(size(symb_tx)/2+1:end,:);
-    
-    symb_tx_1 = reshape(symb_tx_1,[],params.nData,N_pilots/2);
-    symb_tx_2 = reshape(symb_tx_2,[],params.nData,N_pilots/2);
-    
-    symb_tx_1 = padarray(symb_tx_1,[1 0 0],symb_pilot,'pre');
-    symb_tx_2 = padarray(symb_tx_2,[1 0 0],symb_pilot,'post');
-    
-    symb_tx_1 = reshape(symb_tx_1,[],params.nData);
-    symb_tx_2 = reshape(symb_tx_2,[],params.nData);
-    
-    symb_tx = vertcat(symb_tx_1,symb_tx_2);
+    if N_pilots > 0
+        % Add pilots
+        symb_tx_1 = symb_tx(1:size(symb_tx)/2,:);
+        symb_tx_2 = symb_tx(size(symb_tx)/2+1:end,:);
+
+        symb_tx_1 = reshape(symb_tx_1,[],params.nData,N_pilots/2);
+        symb_tx_2 = reshape(symb_tx_2,[],params.nData,N_pilots/2);
+
+        symb_tx_1 = padarray(symb_tx_1,[1 0 0],symb_pilot,'pre');
+        symb_tx_2 = padarray(symb_tx_2,[1 0 0],symb_pilot,'post');
+
+        symb_tx_1 = reshape(symb_tx_1,[],params.nData);
+        symb_tx_2 = reshape(symb_tx_2,[],params.nData);
+
+        symb_tx = vertcat(symb_tx_1,symb_tx_2);
+    end
 
     symb_pre = reshape(symb_pre,[],2);
     symb_tx_parallel = horzcat(symb_pre,symb_tx);
