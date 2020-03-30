@@ -2,16 +2,16 @@
  
  params = load('TestParam.mat').TestParam;
 
- H_tensor=load('H_tensor.mat').H_tensor;
- H_tensor_nlos=load('H_tensor_nlos.mat').H_tensor_nlos;
+ H_tensor=load('H_LOS.mat').H;
+ H_tensor_nlos=load('H_NLOS.mat').H;
  
  %% fit rice distrib to channel frequency response for chosen antenna and chosen frame
  x_val=0:0.01:5; %values of |h| where the pdf is evaluated
  ylos=zeros(size(x_val,2),4); ynlos=zeros(size(x_val,2),4);
  Klos=zeros(4); Knlos=zeros(4);
  for i=1:4
-    p1 = fitdist(abs(H_tensor(:,10,i)),'Rician');
-    p2 = fitdist(abs(H_tensor_nlos(:,10,i)),'Rician');
+    p1 = fitdist(abs(H_tensor(i,:,10)),'Rician');
+    p2 = fitdist(abs(H_tensor_nlos(i,:,10)),'Rician');
     ylos(:,i)=pdf(p1,x_val);
     ynlos(:,i)=pdf(p2,x_val);
     Klos(i)=10*log10(p1.s^2/2*p1.sigma); %rice factor
@@ -23,7 +23,7 @@
      subplot(2,2,i);
      plot(x_val,ylos(:,i));
      hold on;
-     histogram(abs(H_tensor(:,10,i)),'BinMethod','auto','Normalization','pdf','DisplayStyle','stairs','LineStyle','-.');
+     histogram(abs(H_tensor(i,:,10)),'BinMethod','auto','Normalization','pdf','DisplayStyle','stairs','LineStyle','-.');
      hold on;
      grid on;
      legend('fit', 'histogram');
@@ -38,7 +38,7 @@
      subplot(2,2,i);
      plot(x_val,ynlos(:,i));
      hold on;
-     histogram(abs(H_tensor_nlos(:,10,i)),'BinMethod','auto','Normalization','pdf','DisplayStyle','stairs','LineStyle','-.');
+     histogram(abs(H_tensor_nlos(i,:,10)),'BinMethod','auto','Normalization','pdf','DisplayStyle','stairs','LineStyle','-.');
      hold on;
      grid on;
      legend('fit', 'histogram');
@@ -78,7 +78,7 @@
  %%  Rice distrib fitting to channel impulse response taps LOS
  % taps distributions of CIR's
  
- ht = ifft(H_tensor(:,:,4));
+ ht = ifft(H_tensor(4,:,:));
  %ht=ht(1:256,:);
  
  htt=(abs(ht)).^2;
@@ -111,7 +111,7 @@
  
   %%  Rice distrib fitting to channel impulse response taps NLOS
   
- ht_nlos = ifft(H_tensor_nlos(:,:,4));
+ ht_nlos = ifft(H_tensor_nlos(4,:,:));
  %ht_nlos=ht_nlos(1:256,:);
  
  htt_nlos=(abs(ht_nlos)).^2;

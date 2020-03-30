@@ -12,7 +12,7 @@ cfg = load('TestParam.mat');            % load configFile
 params = cfg.TestParam;                 % get the set of parameters
 dispConfigFile_Test(params);            % display the parameters
 params.N_pilots = 126;                  % add the number of pilots
-params.N_zeros = 0;                     % add the number of zero ofdm symbol
+params.N_zeros = 2;                     % add the number of zero ofdm symbol
 params.SNR_list = -5:2:20;              % SNR list for BER curve
 params.Nbps = 2;                        % Modulation order
 params.modulation = 'qpsk';
@@ -25,7 +25,7 @@ NsimPerSNR = 10;                        % number of simulations per SNR value
 %% --- Local parameters
 STO = 0;                                % Time offset (switching unit vector)
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-CFO = 49e-6;           % Carrier frequency offset in ppm
+CFO = 0;           % Carrier frequency offset in ppm
 Nr = 1;                                 % number of receivers
 
 % Number of bits knowing the inactive subcarriers and the number of pilots
@@ -67,12 +67,12 @@ for sim_idx = 1:NsimPerSNR
         STO_estimated = 0;
         MSTO(sim_idx,SNR_idx) = immse(STO,STO_estimated);
         MCFO(sim_idx,SNR_idx) = immse(CFO*params.Fc,CFO_estimated);
-%         % Average over the antennas
-%         STO_estimated = round(mean(STO_estimated,'all'));
-%         CFO_estimated = mean(CFO_estimated,'all');
-%         
-%         % STO correction
-          signal_rx = signal_rx(:,STO_estimated+ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
+        % Average over the antennas
+        STO_estimated = round(mean(STO_estimated,'all'));
+        CFO_estimated = mean(CFO_estimated,'all');
+         
+        % STO correction
+        signal_rx = signal_rx(:,STO_estimated+ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
 %         
         % CFO correction
         T = 1/params.B;
