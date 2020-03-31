@@ -34,25 +34,19 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     phi = mod(phi,2*pi);                               % map it to the range [0,2*pi]
     impulse_response(1,:) = a(1,:);
     impulse_response(2,:) = a(2,:).*exp(1i*phi(1,:));
+    %impulse_response = [zeros(STO,1); impulse_response(1:end-STO)];
     h = impulse_response(1:params.Q);
     H1 = fft(h,params.Q);
     H = zeros(params.Q,1);
     H(params.ActiveQIndex) = H1(params.ActiveQIndex);
     
 %     figure;
-%     subplot(2,1,1);
 %     stem(0:params.Q-1,abs(h));
-%     xlim([0 10])
+%     xlim([0 20])
 %     xlabel("time");
 %     ylabel("|h(t)|");
 %     grid on;
-%     subplot(2,1,2);
-%     plot(abs(fftshift(H)));
-%     xlabel("frequency (bins)");
-%     ylabel("|H(f)|");
-%     grid on;
-%     sgtitle("Channel impulse response in time and frequency domain");
-    
+%     title("Channel impulse response in time domain with STO delay");
     
     impulse_matrix = convolutionMatrix(impulse_response,Nr);
     
@@ -90,27 +84,25 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     noise = sqrt(No/2)*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));
 
     % 4. STO addition
-%     signal_rx = [zeros(Nr,STO), signal_rx(:,1:end-STO)]; 
+    signal_rx = [signal_rx(1:STO), signal_rx(:,1:end-STO)]; 
     
     % 5. Frequency offset (CFO)
     % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-%     delta_w = params.Fc*CFO*(2*pi);
-%     T = 1/params.B;
-%     n = 1:1:size(signal_rx,2);
-%     phi = exp(1i*delta_w*T*n);
-%     signal_rx = signal_rx.*phi;
+    delta_w = params.Fc*CFO;
+    T = 1/params.B;
+    n = 1:1:size(signal_rx,2);
+    phi = exp(1i*delta_w*T*n);
+    signal_rx = signal_rx.*phi;
     
-    signal_rx = signal_rx;%+noise.'; 
+    signal_rx = signal_rx+noise.'; 
     
     % 6. Matched filter + MMSE equalizer
     % impulse_response = [zeros(STO,1); impulse_response(1:end-STO)];
     % impulse_matrix = convolutionMatrix(impulse_response);
-    % Nb = 2 * params.ofdm.N_subcrr * params.modulation.Nbps;
-    % No = noise_energy/(Nb*2);
-    % signal_rx_col = reshape(signal_rx,Lcp+Q,[]);
-    % var1 = var(signal_rx);
-    % signal_rx_col = (2*No/var1+impulse_matrix'*impulse_matrix)\impulse_matrix'*signal_rx_col;
-    % signal_rx = reshape(signal_rx_col,size(signal_rx,1)*size(signal_rx,2),1).';
+%     signal_rx_col = reshape(signal_rx,Lcp+Q,[]);
+%     var1 = var(signal_rx);
+%     signal_rx_col = (2*No/var1+impulse_matrix'*impulse_matrix)\impulse_matrix'*signal_rx_col;
+%     signal_rx = reshape(signal_rx_col,size(signal_rx,1)*size(signal_rx,2),1).';
    
     
     % ---------------------------------------------------------------------

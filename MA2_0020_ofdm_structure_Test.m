@@ -83,7 +83,8 @@ signal_rx = signal_rx_los(:,STO_estimated + 1:end-rest);
 signal_rx = reshape(signal_rx,size(signal_rx,1),frame_size,[]);
 %signal_rx = signal_rx(:,1:frame_size);
 signal_rx = signal_rx(:,1:Nsymb,:);
-H = zeros(size(signal_rx,1),params.Q);
+Hintermediate = zeros(size(signal_rx,1),params.Q);
+H = zeros(size(signal_rx,1),params.Q,size(signal_rx,3));
 for i = 1:size(signal_rx,3)
     signalrx = signal_rx(:,:,i);
     CFO_estimated = estimationCFO(params,signalrx);
@@ -94,15 +95,15 @@ for i = 1:size(signal_rx,3)
     signalrx = signalrx.*phi;
 
     [Hsave,Qsymb_rx] = receiver_Test(params,signalrx,Qsymb_pre(:,1),Qsymb_pilot);
-    H(:,params.ActiveQIndex) = Hsave;
-    H = fftshift(H);
-    plot(abs(H.'));
+    Hintermediate(:,params.ActiveQIndex) = Hsave;
+    H(:,:,i) = fftshift(Hintermediate);
+    %H(:,:,i) = fftshift(H(:,:,i));
     Qsymb_rx = -Qsymb_rx;
     % 5. Demodulation:
     bits_rx = demodulation(params,Qsymb_rx,'bpsk');
 end
 
-save("H_NLOS_G1_bis","H");
+save("H_NLOS","H");
 
 
 

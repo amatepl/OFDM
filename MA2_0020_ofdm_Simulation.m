@@ -29,21 +29,23 @@ dispConfigFile_Test(params);                 % display the parameters
 params.N_pilots = 126;
 params.N_zeros = 2;
 params.Nbps = 2;                        % Modulation order
+% params.Q = 2048;
+% params.nActiveQ = params.Q-410;
+% params.ActiveQIndex = [1:params.nActiveQ/2 params.Q-params.nActiveQ/2:params.Q-1];
 params.modulation = 'qpsk';
 
 %% --- Local parameters
-SNR = 10;                           % Wanted SNR in dB
+SNR = 20;                           % Wanted SNR in dB
 STO = 0;                           % Time offset (switching unit vector)
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-CFO = 0;                        % Carrier frequency offset
+CFO = 40e-6;                        % Carrier frequency offset
 % Nsymb_ofdm = 2;                   % number OFDM symbols to transmit
 Nsymb_ofdm = params.nData;    % number OFDM symbols to transmit
 Nr = 1;                             % number of receivers
 
 % Nbps = params.modulation.Nbps;      % QAM modulation
-Nbps = 1;                          % BPSK modulation
 % Number of bits knowing the inactive subcarriers and the number of pilots
-Nbits = Nsymb_ofdm * (params.nActiveQ - params.N_pilots) * Nbps;
+Nbits = Nsymb_ofdm * (params.nActiveQ - params.N_pilots) * params.Nbps;
 frame_size = (params.nPreamble+params.nData+params.N_zeros)*(params.Q+params.LCP);
 Nsymb = (params.Q+params.LCP)*(params.nData+params.nPreamble);
 
@@ -72,24 +74,24 @@ preambleLCP = signal_tx(:,1:params.Q+params.LCP);
 % % 4. Channel propagation: 
 signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
 % 4. OFDM Receiver:
-[STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,0.5);
-
+[STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,1);
+STO_estimated = 0;
 %Average over the antennas
 %STO_estimated = round(mean(STO_estimated,'all'));
 %CFO_estimated = mean(CFO_estimated,'all');
 
 signal_rx = signal_rx(:,STO_estimated+ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
 
-% T = 1/params.B;
-% n = 1:1:Nsymb;
-% phi = exp(1i*CFO_estimated*T*n);    
-% signal_rx = signal_rx.*phi;
+T = 1/params.B;
+n = 1:1:Nsymb;
+phi = exp(1i*CFO_estimated*T*n);    
+signal_rx = signal_rx.*phi;
 
 % signal_rx = horzcat(signal_rx(STO_estimated+1:end),zeros(1,STO_estimated));
 preamble = Qsymb_pre(1:params.nActiveQ);
 
 % [hz,Qsymb_rx] = receiver_Test(params,signal_rx, preamble,Qsymb_pilot);
-Qsymb_rx = simpleReceiver(params,signal_rx);
+Qsymb_rx = simpleReceiver(params,signal_rx,preamble);
 
 % 5. Demodulation:
 bits_rx = demodulation(params,Qsymb_rx,params.modulation);
@@ -109,3 +111,22 @@ title('Tx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
 subplot(1,2,2); plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
 title('Rx qam constellation');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
 bitErrorRate = sum(abs(bits_tx - bits_rx),'all') / length(bits_tx);
+
+% Qsymb_rx1 = load("MPC_const").Qsymb_rx;
+% figure;
+% subplot(1,2,1); plot(real(Qsymb_rx1),imag(Qsymb_rx1),'rx'); 
+% title("QPSK constellation with 2 MPC's");grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
+% subplot(1,2,2); plot(real(Qsymb_rx),imag(Qsymb_rx),'.'); 
+% title('QPSK constellation with 2 simple equalizer');grid on; axis([-2,2,-2,2]);pbaspect([1 1 1])
+% bitErrorRate = sum(abs(bits_tx - bits_rx),'all') / length(bits_tx);
+
+% STX = fft(signal_rx(1:params.Q));
+% STY = fft(signal_tx(1:params.Q));
+% 
+% figure;
+% plot(abs(fftshift(STX)),'-o');
+% hold on;
+% plot(abs(fftshift(STY)),'-x');
+% legend('TX side','RX side')
+% grid on;
+% title("Transmitted/Received OFDM symbol without noise and MPC's")

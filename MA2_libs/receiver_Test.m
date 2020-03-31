@@ -177,6 +177,7 @@ end
     
   %  symb_rx = vertcat(S,S_pilots).*exp(1i*phi);
 %     symb_rx = vertcat(S,S_pilots);
+symb_rx = Scomb;
 
     % ---------------------------------------------------------------------
     % 'simple_ofdm_Tx': Implements a simple ofdm transmitter: S/P, IFFT, CP

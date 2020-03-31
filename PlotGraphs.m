@@ -7,7 +7,7 @@ addpath(genpath('Results'));           % add data
 
 %% Paramters to set ------------------------------
 Htype = 'LOS';          % Can be LOS or NLOS
-System = 'SIMO';        % SIMO or MIMO
+System = 'MIMO';        % SIMO or MIMO
 %% -----------------------------------------------
 Nreceivers = 4;
 Nbps = 2;
