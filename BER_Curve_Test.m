@@ -12,7 +12,7 @@ cfg = load('TestParam.mat');            % load configFile
 params = cfg.TestParam;                 % get the set of parameters
 dispConfigFile_Test(params);            % display the parameters
 params.N_pilots = 126;                  % add the number of pilots
-params.N_zeros = 2;                     % add the number of zero ofdm symbol
+params.N_zeros = 0;                     % add the number of zero ofdm symbol
 params.SNR_list = -5:2:20;              % SNR list for BER curve
 params.Nbps = 2;                        % Modulation order
 params.modulation = 'qpsk';
@@ -20,13 +20,13 @@ params.Q = 2048;
 params.nActiveQ = params.Q-410;
 params.ActiveQIndex = [2:params.nActiveQ/2 params.Q-params.nActiveQ/2:params.Q];
 params.nData = 30;
-NsimPerSNR = 10;                        % number of simulations per SNR value
+NsimPerSNR = 1;                        % number of simulations per SNR value
 
 %% --- Local parameters
 STO = 0;                                % Time offset (switching unit vector)
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-CFO = 0;           % Carrier frequency offset in ppm
-Nr = 1;                                 % number of receivers
+CFO = 30e-6;           % Carrier frequency offset in ppm
+%Nr = 1;                                 % number of receivers
 
 % Number of bits knowing the inactive subcarriers and the number of pilots
 Nbits = params.nData * (params.nActiveQ-params.N_pilots) * params.Nbps;
@@ -51,28 +51,31 @@ Nsymb = (params.Q+params.LCP)*(params.nData+params.nPreamble);
 
 preambleLCP = signal_tx(:,1:params.Q+params.LCP);
 
+BER_i=zeros(NsimPerSNR,length(params.SNR_list),4);
+
 progress_indx = 0;
 MSTO = zeros(NsimPerSNR,length(params.SNR_list));
 MCFO = zeros(NsimPerSNR,length(params.SNR_list));
+for i=1:4
 for sim_idx = 1:NsimPerSNR
     for SNR_idx = 1:length(params.SNR_list)
         progress_indx =  progress_indx + 1;
         SNR = params.SNR_list(SNR_idx);
 
         % 4. Channel propagation: 
-        signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
+        signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,i);
         
         % 5. CFO and STO estimation:
         [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,1);
-        STO_estimated = 0;
-        MSTO(sim_idx,SNR_idx) = immse(STO,STO_estimated);
-        MCFO(sim_idx,SNR_idx) = immse(CFO*params.Fc,CFO_estimated);
-        % Average over the antennas
-        STO_estimated = round(mean(STO_estimated,'all'));
-        CFO_estimated = mean(CFO_estimated,'all');
-         
-        % STO correction
-        signal_rx = signal_rx(:,STO_estimated+ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
+        %STO_estimated = 0;
+        %MSTO(sim_idx,SNR_idx) = immse(STO,STO_estimated);
+        %MCFO(sim_idx,SNR_idx) = immse(CFO*params.Fc,CFO_estimated);
+%         % Average over the antennas
+         STO_estimated = round(mean(STO_estimated,'all'));
+         CFO_estimated = mean(CFO_estimated,'all');
+%         
+%         % STO correction
+          %signal_rx = [signal_rx(:,STO_estimated+ones(size(signal_rx,1),1)),signal_rx(:,1:STO_estimated)];
 %         
         % CFO correction
         T = 1/params.B;
@@ -91,11 +94,12 @@ for sim_idx = 1:NsimPerSNR
         % compute BER
         bits_tx = bits_data;
         bitErrorRate = sum(abs(bits_tx - bits_rx),'all');
-        BER_i(sim_idx,SNR_idx) = bitErrorRate / length(bits_tx);
+        BER_i(sim_idx,SNR_idx,i) = bitErrorRate / length(bits_tx);
     end
     progress = round(progress_indx/NsimPerSNR/length(params.SNR_list)*100);
     disp([' Simulation executed @ ', num2str(progress), '%']);
     disp('');
+end
 end
 
 % -------------------------------------------------------------------------
@@ -103,14 +107,25 @@ end
 % -------------------------------------------------------------------------
 
 disp('$$ Displaying results:');
+BER1=BER_i(:,:,1);
+BER2=BER_i(:,:,2);
+BER3=BER_i(:,:,3);
+BER4=BER_i(:,:,4);
+
 
 figure;
-semilogy(params.SNR_list,mean(BER_i,1),'^');
+semilogy(params.SNR_list,mean(BER1,1),'-');
+hold on;
+semilogy(params.SNR_list,mean(BER2,1),'-');
+hold on;
+semilogy(params.SNR_list,mean(BER3,1),'-');
+hold on;
+semilogy(params.SNR_list,mean(BER4,1),'-');
 grid on; hold on;
 % ber theoretical
 ber_theo = berawgn(params.SNR_list,'psk',2^(params.Nbps),'non-diff');
 semilogy(params.SNR_list,ber_theo,'--');
-legend('OFDM','Theoretical','location','best');
+legend('Nr=1','Nr=2','Nr=3','Nr=4','Theoretical','location','best');
 xlabel('SNR dB');ylabel('Probability of error');
 xlim([-5 13]);
 s = sprintf("SISO OFDM modulation BER for different sizes of ofdm symbol");
