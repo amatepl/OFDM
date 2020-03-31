@@ -43,9 +43,11 @@ dispConfigFile_Test(params);                 % display the parameters
 % --- Local parameters ----
 
 %% Parameters to set ---------------------------------------
-NsimPerSNR = 100;    % number of simulations per SNR value
+NsimPerSNR = 10;    % number of simulations per SNR value
 Htype = 'NLOS';                     % NLOS or LOS
 %% ---------------------------------------------------------
+
+params.nData = 30;
 
 Nsymb_ofdm = 10;     % number OFDM symbols to transmit
 Nbits = params.nData * params.nActiveQ * Nbps;
@@ -83,25 +85,25 @@ end
 % define storage variables:
 BER_i = zeros(NsimPerSNR,length(SNR_list));
 
-figure, hold on;
-plot(abs(H_LOS_G1(:,:).'))
-legend('1','2','3','4');
-title('Groupe 1');
-
-figure, hold on;
-plot(abs(H_NLOS_G1(:,:).'))
-legend('1','2','3','4');
-title('Groupe 1 - NLOS');
-
-figure, hold on;
-plot(abs(H_LOS_G6(:,:).'))
-legend('1','2','3','4');
-title('Groupe 6');
-
-figure, hold on;
-plot(abs(H_NLOS_G6(:,:).'))
-legend('1','2','3','4');
-title('Groupe 6');
+% figure, hold on;
+% plot(abs(H_LOS_G1(:,:).'))
+% legend('1','2','3','4');
+% title('Groupe 1');
+% 
+% figure, hold on;
+% plot(abs(H_NLOS_G1(:,:).'))
+% legend('1','2','3','4');
+% title('Groupe 1 - NLOS');
+% 
+% figure, hold on;
+% plot(abs(H_LOS_G6(:,:).'))
+% legend('1','2','3','4');
+% title('Groupe 6');
+% 
+% figure, hold on;
+% plot(abs(H_NLOS_G6(:,:).'))
+% legend('1','2','3','4');
+% title('Groupe 6');
 
 progress_indx = 0;
 for sim_idx = 1:NsimPerSNR
@@ -174,8 +176,9 @@ ber_theo = berawgn(SNR_list,'qam',2^(Nbps));
 semilogy(SNR_list,ber_theo,'--');
 legend('myBER','theoretical');
 xlabel('SNR dB');ylabel('Probability of error');
-xlim([-5 15]);
+xlim([-5 20]);
+ylim([10^(-5) 1]);
 
-fpath = './Results';
-filename = join(['MIMO_',Htype,'_',num2str(Nr),'.mat']);
-save(fullfile(fpath,Htype,filename), 'BER_i','-mat');
+% fpath = './Results';
+% filename = join(['MIMO_',Htype,'_',num2str(Nr),'.mat']);
+% save(fullfile(fpath,Htype,filename), 'BER_i','-mat');

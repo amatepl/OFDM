@@ -41,10 +41,11 @@ dispConfigFile_Test(params);                 % display the parameters
 % --- Local parameters ----
 
 %% Parameters to set ---------------------------------------
-NsimPerSNR = 100;    % number of simulations per SNR value
+NsimPerSNR = 10;    % number of simulations per SNR value
 Nr = 4;                             % number of receivers
 Htype = 'NLOS';                      % NLOS or LOS
 %% ---------------------------------------------------------
+% params.nData = 50;
 
 Nsymb_ofdm = 10;     % number OFDM symbols to transmit
 Nbits = params.nData * params.nActiveQ * Nbps;
@@ -57,6 +58,18 @@ switch (Htype)
         H = H_NLOS_G1;
     case 'LOS'
         H = H_LOS_G1;
+end
+
+
+Hw = fftshift(H,2);
+Hw = Hw(:,params.ActiveQIndex);
+Hw = permute(Hw,[1 3 2]);
+
+W = permute(Hw,[2 1 3]);
+
+% Compute the pseudo inverse of the H for MIMO
+for i = 1:size(W,3)
+    W(:,:,i) = pinv(Hw(:,:,i));
 end
 
 % define storage variables:
@@ -101,7 +114,7 @@ for sim_idx = 1:NsimPerSNR
         
         % USER 1
         signal_rx_1 = channel_propagation4(params,signal_tx,H(1:Nr,:),SNR,Nr);
-        [hz,Qsymb_rx_1] = receiver4(params,signal_rx_1,params.nData, preamble,Nr);
+        [hz,Qsymb_rx_1] = receiver4(params,signal_rx_1,params.nData, preamble,Nr,W);
         % 5. Demodulation:
         bits_rx_1 = demodulation(params,Qsymb_rx_1(2*params.nActiveQ+1:end),'qpsk');
         % compute BER
@@ -128,7 +141,8 @@ semilogy(SNR_list,ber_theo,'--');
 legend('myBER','theoretical');
 xlabel('SNR dB');ylabel('Probability of error');
 xlim([-5 20]);
-ylim([10^(-5) 1]);
-% fpath = './Results';
-% filename = join(['SIMO_',Htype,'_',num2str(Nr),'.mat']);
-% save(fullfile(fpath,Htype,filename), 'BER_i','-mat');
+ylim([10^(-6) 1]);
+
+fpath = './Results';
+filename = join(['SIMO_',Htype,'_',num2str(Nr),'.mat']);
+save(fullfile(fpath,Htype,filename), 'BER_i','-mat');
