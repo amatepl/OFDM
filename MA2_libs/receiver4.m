@@ -22,7 +22,7 @@
 %       symb_rx     : QAM symbols. dim = (N_qam_symb,1)
 %
 
-function [hz,symb_rx] = receiver4(params,signal_rx,Nsymb_ofdm, Preamble,Nr)
+function [hz,symb_rx] = receiver4(params,signal_rx,Nsymb_ofdm, Preamble,Nr,W)
 
 k=size(signal_rx,3); 
 % fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
@@ -61,6 +61,15 @@ hz = zeros(k,1);
     S=S.*conj(Ht);
     
     % Zero forcing equalizer
+    
+%     Sw = permute(S,[3 2 1]);
+%     
+%     W = permute(W,[2 1 3]);
+%     
+%     Sw = sum(W.*Sw,1);
+%     
+%     S = permute(Sw,[3 2 1]);
+    
 %     S=S./Ht;
         
     Ssum = sum(S,3);

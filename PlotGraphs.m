@@ -42,7 +42,7 @@ switch System
         
         BER_i = load(join(['SIMO_',Htype,'_','4','.mat']));
         BER_i = BER_i.BER_i;
-        semilogy(SNR_list,mean(BER_i,1),'-^');
+        semilogy(SNR_list,mean(BER_i,1),'-^','DisplayName','M_T = 1, M_R = 4');
         
         legend('theoretical','M_T = 1, M_R = 1','M_T = 1, M_R = 2','M_T = 1, M_R = 3','M_T = 1, M_R = 4');
     case 'MIMO'
@@ -64,6 +64,6 @@ end
 % legend('myBER','theoretical');
 xlabel('SNR dB');ylabel('Probability of error');
 xlim([-5 20]);
-ylim([10^(-5) 1]);
+ylim([10^(-6) 1]);
 
 
