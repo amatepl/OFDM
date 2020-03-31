@@ -1,26 +1,39 @@
 clc; close all; clear;
- 
- params = load('TestParam.mat').TestParam;
+addpath("MA2_libs")
+params = load('TestParam.mat').TestParam;
 
- H_tensor=load('H_LOS_Tensor.mat').Htens;
- H_tensor_nlos=load('H_NLOS_Tensor.mat').Htens;
+HLOS = load("H_LOS.mat").H;
+HNLOS = load("H_NLOS.mat").H;
+
+H_tensor=zeros(params.nActiveQ,99,4);
+H_tensor_nlos=zeros(params.nActiveQ,99,4);
+
+for i = 1:4
+    H_LOS = fftshift(HLOS(i,:,:));
+    H_NLOS = fftshift(HNLOS(i,:,:));
+    for j = 1:99
+        H_tensor(:,j,i) = H_LOS(1,params.ActiveQIndex,j);
+        H_tensor_nlos(:,j,i) = H_NLOS(1,params.ActiveQIndex,j);
+    end
+end
+
  
-%  z(:,:)=H_tensor(:,:,2);
-%  w(:,:)=H_tensor_nlos(:,:,2);
-%  figure;
-%  subplot(1,2,1)
-%  plot(abs(z))
-%  grid on;
-%  ylabel('|H|')
-%  xlabel('subcarriers')
-%  title('LOS')
-%  subplot(1,2,2)
-%  plot(abs(w))
-%  grid on;
-%  ylabel('|H|')
-%  xlabel('subcarriers')
-%  title('NLOS')
-%  sgtitle('Channel frequency response estimates')
+ z(:,:)=H_tensor(:,:,2);
+ w(:,:)=H_tensor_nlos(:,:,2);
+ figure;
+ subplot(1,2,1)
+ plot(abs(z))
+ grid on;
+ ylabel('|H|')
+ xlabel('subcarriers')
+ title('LOS')
+ subplot(1,2,2)
+ plot(abs(w))
+ grid on;
+ ylabel('|H|')
+ xlabel('subcarriers')
+ title('NLOS')
+ sgtitle('Channel frequency response estimates')
 %  
 %  v(:,:)=H_tensor(:,10,:);
 %  u(:,:)=H_tensor_nlos(:,10,:);
@@ -387,7 +400,7 @@ l=100;
 figure;
 for i=it% Number of subcarrier
     k=k+1;
-    narrow_h = ifft(H_tensor(1:i,:,2),[],1); 
+    narrow_h = ifft(H_tensor_nlos(1:i,:,2),[],1); 
     narrow_h = ifftshift(narrow_h);
     narrow_h=narrow_h(floor(size(narrow_h,1)/2)+1:end,:);
     %narrow_h=[narrow_h;zeros(819-i,99)];
@@ -436,14 +449,14 @@ grid on;
 legend(Legend);
 xlabel('\tau');
 ylabel('PDP');
-title('PDP for varying BW LOS')
+title('PDP for varying BW NLOS')
 
 k=0;
 it=[1,10,800,1638];
 figure;
 for i=it% Number of subcarrier
     k=k+1;
-    narrow_h = ifft(H_tensor(1:i,:,2),[],1); 
+    narrow_h = ifft(H_tensor_nlos(1:i,:,2),[],1); 
     narrow_h = ifftshift(narrow_h);
     narrow_h=narrow_h(floor(size(narrow_h,1)/2)+1:end,:);
     narrow_h=[narrow_h;zeros(819-i,99)];
@@ -466,4 +479,4 @@ for i=it% Number of subcarrier
     xlabel('\tau');
     ylabel('PDP');
 end
-sgtitle('CIRs for varying BW LOS')
+sgtitle('CIRs for varying BW NLOS')
