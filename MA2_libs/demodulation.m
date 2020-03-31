@@ -13,7 +13,7 @@
 %           bit_rx  : received bits. dim=(Nbits,1)
 %
    
-function bits_rx = demodulation(params,symb_rx, modulation)
+function bits_rx = demodulation(params,symb_rx,modulation)
    
 % INPUTS:
 % - symb_rx : vector of input symbols (variance 1)

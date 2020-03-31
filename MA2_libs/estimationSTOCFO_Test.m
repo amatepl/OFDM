@@ -1,27 +1,11 @@
-function [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx)
+function [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,maxiter)
     k=size(signal_rx,1); 
     STO_estimated=zeros(k,1);
     CFO_estimated = zeros(k,1);
     T = 1/params.B;
     N = params.Q+params.LCP;
-    length_analyzed_signal = 30*32*N; % Change this value to set the length of the signal you want to analyse 32*N is one frame.
-    
-%     
-%     % Compute the correlation
-%     signalrx_mult = signal_rx(:,1:length_analyzed_signal).*conj(signal_rx(:,N+1:(length_analyzed_signal)+N));
-%     o = ones(1,N);
-%     An = conv2(1,o,signalrx_mult,'valid');
-% 
-%     % Compute the norm of two following symbols
-%     norm = abs(signal_rx(:,1:(length_analyzed_signal)+N)).^2;
-%     o = ones(1,2*N);
-%     norm = conv2(1,o,norm,'valid');
-% 
-%     n = abs(An)./norm;
-% 
-%     STO_estimated1 = find(n==max(n,[],2))-1;
-%     CFO_estimated1 = -angle(An(STO_estimated1+1))/(T*N);
-    
+
+    length_analyzed_signal = maxiter*(params.nPreamble+params.nData+params.N_zeros)*N-N; % Change this value to set the length of the signal you want to analyse 32*N is one frame.
     
     for i=1:k
         
@@ -38,35 +22,8 @@ function [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx
         norm = conv(norm,o,'valid');
         
         n = abs(An)./norm;
-        
         STO_estimated(i) = find(n==max(n))-1;
         CFO_estimated(i) = -angle(An(STO_estimated(i)+1))/(T*N);
-        
-%         % M is a matrix where every column is the same and we apply over it a
-%         % lower triangular transformation followed by a upper triangular one.
-%             
-%         
-% %         M = triu(tril(ones(size(signalrx(N+1:(m*N)+N-1),1))),-N+1);
-%         
-% %         signalrx =  signalrx(N+1:(m*N)+N-1)';
-%         
-% %         M = signalrx(N+1:(m*N)+N-1).*M;
-%         
-%         M = triu(tril(signalrx(N+1:(m*N)+N-1).*ones(size(signalrx(N+1:(m*N)+N-1),1))),-N+1);
-%         M = M(:,1:N);
-%        
-% %         An = conj(signalrx(1:m*N-1)*M);
-% 
-%         An = (signalrx(1:m*N-1).')*M;
-%     
-%         M = triu(tril(signalrx(1:(m*N)+N-1).*ones(size(signalrx(1:(m*N)+N-1),1))),-2*N +1);
-%         M = M(:,1:N);
-%     
-%         n = abs(An)./(vecnorm(M).^2);
-%         
-%         STO_estimated(i) = find(n==max(n))-1;
-%         CFO_estimated(i) = -angle(An(STO_estimated(i)+1))/(T*N);
-%         %CFO_estimated = 0;
         
     end
 end

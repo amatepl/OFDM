@@ -27,81 +27,38 @@
 function [signal_tx] = transmitter_Test(params, symb_pre,symb_tx, symb_pilot)
     
     % Serial to parallel converter
-%     symb_tx_parallel = reshape(symb_tx,params.ofdm.N_subcrr,Nsymb_ofdm);
 
-    N_pilots = 126;
+    N_pilots = params.N_pilots;
 
     symb_tx = reshape(symb_tx,[],params.nData);
     
-    % Add pilots
-    symb_tx_1 = symb_tx(1:size(symb_tx)/2,:);
-    symb_tx_2 = symb_tx(size(symb_tx)/2+1:end,:);
-    
-    symb_tx_1 = reshape(symb_tx_1,[],params.nData,N_pilots/2);
-    symb_tx_2 = reshape(symb_tx_2,[],params.nData,N_pilots/2);
-    
-    symb_tx_1 = padarray(symb_tx_1,[1 0 0],symb_pilot,'pre');
-    symb_tx_2 = padarray(symb_tx_2,[1 0 0],symb_pilot,'post');
-    
-    symb_tx_1 = reshape(symb_tx_1,[],params.nData);
-    symb_tx_2 = reshape(symb_tx_2,[],params.nData);
-    
-    symb_tx = vertcat(symb_tx_1,symb_tx_2);
+    if N_pilots > 0
+        % Add pilots
+        symb_tx_1 = symb_tx(1:size(symb_tx)/2,:);
+        symb_tx_2 = symb_tx(size(symb_tx)/2+1:end,:);
+
+        symb_tx_1 = reshape(symb_tx_1,[],params.nData,N_pilots/2);
+        symb_tx_2 = reshape(symb_tx_2,[],params.nData,N_pilots/2);
+
+        symb_tx_1 = padarray(symb_tx_1,[1 0 0],symb_pilot,'pre');
+        symb_tx_2 = padarray(symb_tx_2,[1 0 0],symb_pilot,'post');
+
+        symb_tx_1 = reshape(symb_tx_1,[],params.nData);
+        symb_tx_2 = reshape(symb_tx_2,[],params.nData);
+
+        symb_tx = vertcat(symb_tx_1,symb_tx_2);
+    end
 
     symb_pre = reshape(symb_pre,[],2);
     symb_tx_parallel = horzcat(symb_pre,symb_tx);
-%     symb_tx_parallel = reshape(symb_tx,[],Nsymb_ofdm);
     
-    
-    
-    
-%     N_active_subcrr = params.ofdm.N_subcrr - params.ofdm.N_inactive_subcrr;
-    N_inactive_subcrr = params.Q - params.nActiveQ;
-    
-    % Inactive subcarriers removal
-
-% BasicVariableLocationPilot = {0, 39, 261,330,342,351,522,522,645,651,708,...
-%                               726,756,792,849,855,918,21017,1143,1155,1158,...
-%                               1185,1206,1260, 1407,1419,1428,1461,1530,1545,...
-%                               1572,1701,1702};
-% Pilot placement equation k = 3 * L + 12 * P 
-% 
-% k ∈ Indices from 0 to the number of Overall Usable Carriers minus 1
-% L ∈ 0 .. 3 denotes the symbol number with a cyclic period of 4
-% P ≥ 0 is an integer number
-    % pilotQAM
-
-%     continuesLocationPilots = padarray([1 0 0 0 0 0 0 0 0 0 0],[0 params.ofdm.N_active_subcrr - 11],'circ','post');
-%     continuesLocationPilots = continuesLocationPilots * symb_pilot;
-    
-   
-    
-
-%     symb_tx_parallel = vertcat(symb_tx_parallel(1:(params.nActiveQ)/2,:),...
-%                                 zeros(1,params.nData+params.nPreamble),...
-%                                 symb_tx_parallel(end - (params.nActiveQ)/2 +1:end,:));
-% 
-%     symb_tx_parallel = vertcat(zeros((N_inactive_subcrr)/2 -1,params.nData+params.nPreamble),...
-%                                symb_tx_parallel,...
-%                                zeros((N_inactive_subcrr)/2,params.nData+params.nPreamble));
-
-    
-    inactSubRem = zeros(params.Q,params.nData + params.nPreamble);
-    
+    % Inactive subcarrier removal 
+    inactSubRem = zeros(params.Q,params.nData + params.nPreamble);   
     inactSubRem(params.ActiveQIndex,:) =  symb_tx_parallel;
-    
     symb_tx_parallel = (inactSubRem);
-    
-    
-%     figure, hold on;
-%     fq = -params.Q/2:1:params.Q/2-1;
-%     plot(fq,abs((symb_tx_parallel(:,1))));
-%     grid on;
-%     title("signal tx with CFO and STO correction applied");
     
     % IFFT
     symb_tx_parallel = ifft(symb_tx_parallel,[],1);
-   % symb_tx_parallel = ifftshift(symb_tx_parallel);
     
     % Cyclic prefix addition
     symb_tx_parallel = vertcat(symb_tx_parallel(end-params.LCP+1:end,:),symb_tx_parallel);
@@ -110,8 +67,8 @@ function [signal_tx] = transmitter_Test(params, symb_pre,symb_tx, symb_pilot)
     signal_tx = reshape(symb_tx_parallel,1,[]);
     
     % Add zeros
-    
-    signal_tx = padarray(signal_tx,[0 5120],0,'post');
+    N_zeros = params.N_zeros*(params.Q+params.LCP);
+    signal_tx = padarray(signal_tx,[0 N_zeros],0,'post');
     
     % ---------------------------------------------------------------------
     % 'simple_ofdm_Tx': Implements a simple ofdm transmitter: S/P, IFFT, CP

@@ -4,14 +4,13 @@ function [STO_estimated, CFO_estimated] = estimationSTOCFO(params,signal_rx)
     CFO_estimated = zeros(k,1);
     
     T = 1/params.ofdm.B;
-        % SFO & CFO Estimation & Correction   
-        
-    N = params.ofdm.N_subcrr+params.ofdm.cp_L;      
+
+    N = params.ofdm.N_subcrr+params.ofdm.cp_L;
     
     length_analyzed_signal = 2*N*10; % Change this value to set the length of the signal you want to analyse 32*N is one frame.
     
     for i=1:k
-         
+        
         signalrx=reshape(signal_rx(i,:),size(signal_rx,2),1);
         
         % Compute the correlation
