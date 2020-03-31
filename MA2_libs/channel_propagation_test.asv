@@ -28,22 +28,20 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     signal_tx_col = reshape(signal_tx,Lcp+Q,[]);
     % Creation of the impulse response matrix
     impulse_response = zeros(Lcp+Q,Nr);
-    a = ones(5,Nr); 
+    a = ones(4,Nr); 
     %impulse_response(1,:) = a(1,:);
     % MPC
     a(1,:) = a(1,:);% attenuation factor
-    a(2,:) = a(2,:).*rand(1,Nr)*0.8;                               % Constant attenuation
-    a(3,:) = a(3,:).*rand(1,Nr)*0.7;
-    a(4,:) = a(4,:).*rand(1,Nr)*0.5; 
-    a(5,:) = a(5,:).*rand(1,Nr)*0.3;
-    phi = 2*pi*randn(4,Nr);                             % random phase
+    a(2,:) = a(2,:).*rand(1,Nr)*0.7;                               % Constant attenuation
+    a(3,:) = a(3,:).*rand(1,Nr)*0.5;
+    a(3,:) = a(3,:).*rand(1,Nr)*0.5; 
+    phi = 2*pi*randn(3,Nr);                             % random phase
     phi = mod(phi,2*pi);                               % map it to the range [0,2*pi]
     impulse_response(1,:) = a(1,:);
     for i = 1:Nr
-        impulse_response(2+randi(20),i) = a(2,i).*exp(1i*phi(1,i));
-        impulse_response(21+randi(20),i) = a(3,i).*exp(1i*phi(2,i));
-        impulse_response(41+randi(20),i) = a(4,i).*exp(1i*phi(3,i));
-        impulse_response(61+randi(20),i) = a(5,i).*exp(1i*phi(4,i));
+        impulse_response(randi(20),i) = a(1,i).*exp(1i*phi(1,i));
+        impulse_response(21+randi(20),i) = a(2,i).*exp(1i*phi(2,i));
+        impulse_response(21+randi(20),i) = a(3,i).*exp(1i*phi(1,i));
     end
     %impulse_response = [zeros(STO,1); impulse_response(1:end-STO)];
     h = impulse_response(1:params.Q);
@@ -77,7 +75,7 @@ function signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr)
     Nbits = (params.nPreamble+params.nData)*(params.nActiveQ)*params.Nbps;
     signalEnergy = norm(signal_tx)^2;
     Energybit = signalEnergy/Nbits;
-    EbNoLin = 2*10^(SNR/10);
+    EbNoLin = 10^(SNR/10);
     No = Energybit/EbNoLin;
     noise = sqrt(No/2)*(randn(length(signal_tx),1)+1i*randn(length(signal_tx),1));
 

@@ -26,10 +26,10 @@ function [Hsave,symb_rx] = receiver_Test(params,signal_rx,Preamble,pilot)
     Nsymb_ofdm = params.nData;
     k=size(signal_rx,1); 
     fq = -params.nActiveQ/2:1:params.nActiveQ/2-1;
-    Hsave = zeros(params.nActiveQ,1,size(signal_rx,1));
+    Hsave = zeros(size(signal_rx,1),params.nActiveQ);
    
     % S/P conversion
-    s = reshape(signal_rx.',[],Nsymb_ofdm+params.nPreamble,size(signal_rx,1));
+    s = reshape(signal_rx,[],Nsymb_ofdm+params.nPreamble,size(signal_rx,1));
     
     % CP removal
     s = s(params.LCP+1:end,:,:);
@@ -60,7 +60,7 @@ function [Hsave,symb_rx] = receiver_Test(params,signal_rx,Preamble,pilot)
     a=conj(Preamble).*S(:,2,:);
     ht = ifft(a,params.nActiveQ,1);
     Ht=fft(ht,params.nActiveQ,1); 
-    Hsave = Ht;
+    Hsave( = Ht.';
 
 %     plot(fq,abs(Ht));
 %     grid on;
@@ -135,13 +135,12 @@ function [Hsave,symb_rx] = receiver_Test(params,signal_rx,Preamble,pilot)
         S_pilots = S_pilots.*(kron(exp(1i*phi),ones(size(S_pilots,1),1))); 
         
         Hsum = sum(abs(Hcomb).^2,3);
-        Ssum = sum(S_pilots,3);
     else 
-        Ssum = sum(S,3);
         Hsum = sum(abs(Ht).^2,3);
     end
+    Ssum = sum(S_pilots,3);
     
-    Scomb= Ssum./(Hsum.*ones(params.nActiveQ-params.N_pilots, Nsymb_ofdm+params.nPreamble));
+    Scomb= Ssum./(Hsum.*ones(params.nActiveQ-params.N_pilots, Nsymb_ofdm));
     
     % P/S conversion
     Scomb = reshape(Scomb,[],1);

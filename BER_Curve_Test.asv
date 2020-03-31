@@ -12,7 +12,7 @@ cfg = load('TestParam.mat');            % load configFile
 params = cfg.TestParam;                 % get the set of parameters
 dispConfigFile_Test(params);            % display the parameters
 params.N_pilots = 0;                  % add the number of pilots
-params.N_zeros = 0;                     % add the number of zero ofdm symbol
+params.N_zeros = 2;                     % add the number of zero ofdm symbol
 params.SNR_list = -5:5:15;              % SNR list for BER curve
 params.Nbps = 2;                        % Modulation order
 params.modulation = 'qpsk';
@@ -20,10 +20,10 @@ params.Q = 2048;
 params.nActiveQ = params.Q-410;
 params.ActiveQIndex = [2:params.nActiveQ/2 params.Q-params.nActiveQ/2:params.Q];
 params.nData = 30;
-NsimPerSNR = 10;                        % number of simulations per SNR value
+NsimPerSNR = 1;                        % number of simulations per SNR value
 
 %% --- Local parameters
-STO = 0;                                % Time offset (switching unit vector)
+STO = ;                                % Time offset (switching unit vector)
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
 CFO = 0;           % Carrier frequency offset in ppm
 %Nr = 1;                                 % number of receivers
@@ -69,29 +69,28 @@ for sim_idx = 1:NsimPerSNR
         [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,1);
         STO_estimated = zeros(i,1);
         CFO_estimated = zeros(i,1);
-        % For SISO only
-        %MSTO(sim_idx,SNR_idx) = immse(STO,STO_estimated);
-        %MCFO(sim_idx,SNR_idx) = immse(CFO*params.Fc,CFO_estimated);
+        MSTO(sim_idx,SNR_idx) = immse(STO,STO_estimated);
+        MCFO(sim_idx,SNR_idx) = immse(CFO*params.Fc,CFO_estimated);
         % Average over the antennas
-%         STO_estimated = round(mean(STO_estimated,'all'));
-%         CFO_estimated = mean(CFO_estimated,'all');
+        STO_estimated = round(mean(STO_estimated,'all'));
+        CFO_estimated = mean(CFO_estimated,'all');
          
-%         % STO correction
-%         signal_rx = signal_rx(:,STO_estimated+ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
-%          
-%         % CFO correction
-%         T = 1/params.B;
-%         n = 1:1:Nsymb;
-%         phi = exp(-1i*CFO_estimated*T*n);    
-%         signal_rx = signal_rx.*phi;
+        % STO correction
+        signal_rx = signal_rx(:,STO_estimated+ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
+         
+        % CFO correction
+        T = 1/params.B;
+        n = 1:1:Nsymb;
+        phi = exp(-1i*CFO_estimated*T*n);    
+        signal_rx = signal_rx.*phi;
 
         preamble = Qsymb_pre(1:params.nActiveQ);
-        
+
         % 6. OFDM Receiver:
         [hz,Qsymb_rx] = receiver_Test(params,signal_rx, preamble,Qsymb_pilot);  
         % Qsymb_rx = simpleReceiver(params,signal_rx,preamble);
         % 7. Demodulation:
-        bits_rx = demodulation(params,Qsymb_rx(2*params.nActiveQ+1:end),params.modulation);
+        bits_rx = demodulation(params,Qsymb_rx,params.modulation);
         
         % compute BER
         bits_tx = bits_data;
@@ -130,7 +129,7 @@ semilogy(params.SNR_list,ber_theo,'--');
 legend('Nr=1','Nr=2','Nr=3','Nr=4','Theoretical','location','best');
 xlabel('SNR dB');ylabel('Probability of error');
 xlim([-5 13]);
-s = sprintf("SISO OFDM modulation BER Diversity gain with 5 MPC's");
+s = sprintf("SISO OFDM modulation BER for different sizes of ofdm symbol");
 title(s);
 
 % BER_i_5 = load("BERCFO_5.mat").BER_i;
