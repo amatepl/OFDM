@@ -38,10 +38,10 @@ params.modulation = 'qpsk';
 SNR = 20;                           % Wanted SNR in dB
 STO = 0;                           % Time offset (switching unit vector)
 % delta_w is usually in the range [-40ppm, 40ppm] Source: Wikipedia
-CFO = 40e-6;                        % Carrier frequency offset
+CFO = 30e-6;                        % Carrier frequency offset
 % Nsymb_ofdm = 2;                   % number OFDM symbols to transmit
 Nsymb_ofdm = params.nData;    % number OFDM symbols to transmit
-Nr = 1;                             % number of receivers
+Nr = 4;                             % number of receivers
 
 % Nbps = params.modulation.Nbps;      % QAM modulation
 % Number of bits knowing the inactive subcarriers and the number of pilots
@@ -75,26 +75,29 @@ preambleLCP = signal_tx(:,1:params.Q+params.LCP);
 signal_rx = channel_propagation_test(params,signal_tx,SNR,STO,CFO,Nr);
 % 4. OFDM Receiver:
 [STO_estimated, CFO_estimated] = estimationSTOCFO_Test(params,signal_rx,1);
-STO_estimated = 0;
 %Average over the antennas
-%STO_estimated = round(mean(STO_estimated,'all'));
-%CFO_estimated = mean(CFO_estimated,'all');
+STO_estimated = round(mean(STO_estimated,'all'));
+CFO_estimated = mean(CFO_estimated,'all');
 
 signal_rx = signal_rx(:,STO_estimated+ones(size(signal_rx,1),1):STO_estimated+Nsymb*ones(size(signal_rx,1),1));
 
 T = 1/params.B;
 n = 1:1:Nsymb;
-phi = exp(1i*CFO_estimated*T*n);    
+phi = exp(-1i*CFO_estimated*T*n);    
 signal_rx = signal_rx.*phi;
 
 % signal_rx = horzcat(signal_rx(STO_estimated+1:end),zeros(1,STO_estimated));
 preamble = Qsymb_pre(1:params.nActiveQ);
 
 % [hz,Qsymb_rx] = receiver_Test(params,signal_rx, preamble,Qsymb_pilot);
-Qsymb_rx = simpleReceiver(params,signal_rx,preamble);
+[Hsave,Qsymb_rx] = receiver_Test(params,signal_rx,preamble,Qsymb_pilot);
 
 % 5. Demodulation:
-bits_rx = demodulation(params,Qsymb_rx,params.modulation);
+if params.N_pilots > 0
+    bits_rx = demodulation(params,Qsymb_rx,params.modulation);
+else
+    bits_rx = demodulation(params,Qsymb_rx(2*params.nActiveQ+1:end),params.modulation);
+end
 
 
 % -------------------------------------------------------------------------
