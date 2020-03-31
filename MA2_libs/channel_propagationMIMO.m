@@ -30,6 +30,8 @@ function signal_rx = channel_propagationMIMO(params,signal_tx1,signal_tx2,H1,H2,
     
     signal_tx1 = ifft(signal_tx1,[],1);
     
+    
+    
      % 2. Noise computation
     transmitted_energy = (norm(signal_tx1(:)))^2;%.*vecnorm(H,2,1).^2;%*sum(vecnorm(H,2,1).^2,'all');           % energy of the signal
 %     signal = reshape(signal_rx,params.Q*(params.nData + params.nPreamble),1,size(signal_rx,3));
@@ -43,10 +45,11 @@ function signal_rx = channel_propagationMIMO(params,signal_tx1,signal_tx2,H1,H2,
 %     noise_std = sqrt(power/(10^(SNR/10)));
     
     noise1 = noise_std.*(randn([size(signal_tx1),Nr])+1i*randn([size(signal_tx1),Nr]));      % noise
-    noise2 = noise_var.*(rand([size(signal_tx1),Nr])+1i*rand([size(signal_tx1),Nr]))/2;      % noise
+    noise2 = noise_std.*(randn([size(signal_tx1),Nr])+1i*randn([size(signal_tx1),Nr]));      % noise
+%     noise2 = noise_var.*(rand([size(signal_tx1),Nr])+1i*rand([size(signal_tx1),Nr]))/2;      % noise
     
     % Noise added after the channel
-    signal_rx = signal_rx1 + signal_rx2 +fft(noise1); %+ noise2;    % Add noise to signal
+    signal_rx = signal_rx1 + signal_rx2 +fft(noise1);%+fft(noise2); %+ noise2;    % Add noise to signal
 %     signal_rx = ifft(signal_rx1,[],1) + ifft(signal_rx2,[],1) +noise1;
 %     signal_rx = fft(signal_rx,[],1);
     

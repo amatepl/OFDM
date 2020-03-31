@@ -46,16 +46,16 @@ switch System
         
         legend('theoretical','M_T = 1, M_R = 1','M_T = 1, M_R = 2','M_T = 1, M_R = 3','M_T = 1, M_R = 4');
     case 'MIMO'
-        title(join([Htype,' NLOS and LOS systems']));
+        title(join([System,' NLOS and LOS communication']));
         
         BER_i = load('MIMO_LOS_4.mat');
         BER_i = BER_i.BER_i;
-        semilogy(SNR_list,mean(BER_i,1));
+        semilogy(SNR_list,mean(BER_i,1),'-o');
         
-        title(join([Htype,'NLOS and LOS systems']));
+%         title(join([Htype,'NLOS and LOS systems']));
         BER_i = load('MIMO_NLOS_4.mat');
         BER_i = BER_i.BER_i;
-        semilogy(SNR_list,mean(BER_i,1));
+        semilogy(SNR_list,mean(BER_i,1),'-*');
         
         legend('theoretical','LOS','NLOS');
 end
